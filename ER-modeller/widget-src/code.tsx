@@ -11,7 +11,7 @@
 /// <reference types="@figma/widget-typings" />
 
 const { widget } = figma;
-const { AutoLayout, Text, Input, Frame, useSyncedState } = widget;
+const { AutoLayout, Text, Input, Frame, useSyncedState, usePropertyMenu } = widget;
 
 type Attribute = {
   id: string;
@@ -89,6 +89,18 @@ function ERModeller() {
     </AutoLayout>
   );
 
+  // работа с менюшкой виджета - пока сюда только переехала кнопка Добавить атрибут
+  usePropertyMenu(
+    [{
+      itemType: "action",
+      propertyName: "add-attribute",
+      tooltip: "Добавить атрибут",
+    }],
+    ({ propertyName }) => {
+      if (propertyName === "add-attribute") addAttribute();
+    }
+  );
+
   return (
     <AutoLayout
       direction="vertical"
@@ -119,8 +131,7 @@ function ERModeller() {
         onTextEditEnd={(e) => setLinkURL(e.characters)}
         width="fill-parent"
       />
-
-      <Button onClick={addAttribute}>Добавить атрибут</Button>
+      
       {attributes.map((attr) => (
         <AutoLayout
           key={attr.id}
@@ -152,7 +163,7 @@ function ERModeller() {
           <IconButton onClick={() => removeAttribute(attr.id)}>🗑️</IconButton>
         </AutoLayout>
       ))}
-      <AutoLayout width={300}><Text>Пока тут будет этот костыль</Text></AutoLayout>
+      <AutoLayout width={300}><Text fontSize={4}>Пока тут будет этот костыль, нет встроенных констрейнтов</Text></AutoLayout>
     </AutoLayout>
   );
 }
