@@ -115,7 +115,10 @@ function ERModeller() {
     children: string;
   }) => (
     <AutoLayout
+      padding={4}
+      cornerRadius={4}
       fill={[ ]}
+      hoverStyle={{ fill: [{ type: "solid", color: { r: 0.2, g: 0.6, b: 1, a: 0.2 } }] }}
       onClick={onClick}
     >
       <Text>
@@ -217,12 +220,19 @@ function ERModeller() {
       )}
 
       {hasLink && (
-        <Input
-          placeholder="URL"
-          value={linkURL}
-          onTextEditEnd={(e) => setLinkURL(e.characters)}
-          width="fill-parent"
-        />
+        <AutoLayout direction="horizontal" spacing={8} width="fill-parent" verticalAlignItems="center">
+          <Text>🔗</Text>
+          <Input
+            placeholder="URL"
+            value={linkURL}
+            onTextEditEnd={(e) => setLinkURL(e.characters)}
+            width="fill-parent"
+            hoverStyle={{
+              fill: [{ type: "solid", color: { r: 0.2, g: 0.6, b: 1, a: 1 } }],
+            }}
+            textDecoration="underline" 
+          />
+        </AutoLayout>
       )}
 
       {attributes.map((attr) => (
@@ -252,9 +262,9 @@ function ERModeller() {
             onTextEditEnd={(e) => updateAttribute(attr.id, "description", e.characters)}
             width={300}
           />
-          <IconButton onClick={() => moveAttributeUp(attr.id)}>⬆️</IconButton>
-          <IconButton onClick={() => moveAttributeDown(attr.id)}>⬇️</IconButton>
-          <IconButton onClick={() => removeAttribute(attr.id)}>❌</IconButton>
+          <IconButton onClick={() => moveAttributeUp(attr.id)}>⋀</IconButton>
+          <IconButton onClick={() => moveAttributeDown(attr.id)}>⋁</IconButton>
+          <IconButton onClick={() => removeAttribute(attr.id)}>✕</IconButton>
         </AutoLayout>
       ))}
       <AutoLayout width={300}><Text fontSize={1}> </Text></AutoLayout>
