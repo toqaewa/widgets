@@ -1,12 +1,3 @@
-
-// Тестовый виджет, если что-то идет не так и подозреваю что проблема на стороне апихи / пакетов - консолить этот виджет на предмет undefined
-// function Widget() {
-//   return <Frame width={100} height={100} fill={'#C4C4C4'}></Frame>
-// }
-
-// widget.register(Widget)
-
-
 /// <reference types="@figma/plugin-typings" />
 /// <reference types="@figma/widget-typings" />
 
