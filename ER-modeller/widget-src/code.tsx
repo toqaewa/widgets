@@ -161,6 +161,7 @@ function ERModeller() {
         value={description}
         onTextEditEnd={(e) => setDescription(e.characters)}
         width="fill-parent"
+        inputBehavior="multiline"
       />
       <Input
         placeholder="URL"
