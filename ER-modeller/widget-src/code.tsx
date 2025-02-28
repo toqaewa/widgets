@@ -38,6 +38,9 @@ function ERModeller() {
   const [linkURL, setLinkURL] = useSyncedState("linkURL", "");
   const [attributes, setAttributes] = useSyncedState<Attribute[]>("attributes", []);
   const [widgetColor, setWidgetColor] = useSyncedState("widgetColor", COLOR_PALETTE[0].value); // По умолчанию первый цвет из палитры
+  // Настройки видимости полей
+  const [hasDescription, setHasDescription] = useSyncedState("hasDescription", true);
+  const [hasLink, setHasLink] = useSyncedState("hasLink", true);
 
   // Функция для добавления нового атрибута
   const addAttribute = () => {
@@ -151,10 +154,24 @@ function ERModeller() {
           color.value.b === widgetColor.b
         )?.name || COLOR_PALETTE[0].name, // Выбранный цвет по умолчанию
       },
+      {
+        itemType: "toggle",
+        propertyName: "hasDescription",
+        tooltip: "Показывать описание",
+        isToggled: hasDescription,
+      },
+      {
+        itemType: "toggle",
+        propertyName: "hasLink",
+        tooltip: "Показывать ссылку",
+        isToggled: hasLink,
+      },
     ],
     ({ propertyName, propertyValue }) => {
       if (propertyName === "add-attribute") addAttribute();
       if (propertyName === "color" && propertyValue) handleColorChange(propertyValue);
+      if (propertyName === "hasDescription") setHasDescription(!hasDescription);
+      if (propertyName === "hasLink") setHasLink(!hasLink);
     }
   );
 
@@ -176,19 +193,25 @@ function ERModeller() {
         fontWeight="bold" 
         fill={[{ type: "solid", color: { r: 0.1, g: 0.1, b: 0.1, a: 1 } }]}
       />
-      <Input
-        placeholder="Описание"
-        value={description}
-        onTextEditEnd={(e) => setDescription(e.characters)}
-        width="fill-parent"
-        inputBehavior="multiline"
-      />
-      <Input
-        placeholder="URL"
-        value={linkURL}
-        onTextEditEnd={(e) => setLinkURL(e.characters)}
-        width="fill-parent"
-      />
+
+      {hasDescription && (
+        <Input
+          placeholder="Описание"
+          value={description}
+          onTextEditEnd={(e) => setDescription(e.characters)}
+          width="fill-parent"
+          inputBehavior="multiline" // Многострочный ввод
+        />
+      )}
+
+      {hasLink && (
+        <Input
+          placeholder="URL"
+          value={linkURL}
+          onTextEditEnd={(e) => setLinkURL(e.characters)}
+          width="fill-parent"
+        />
+      )}
 
       {attributes.map((attr) => (
         <AutoLayout
