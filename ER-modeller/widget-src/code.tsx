@@ -62,6 +62,26 @@ function ERModeller() {
     setAttributes(updated);
   };
 
+  // Перемещение атрибута вверх
+  const moveAttributeUp = (id: string) => {
+    const index = attributes.findIndex((attr) => attr.id === id);
+    if (index > 0) {
+      const updated = [...attributes];
+      [updated[index], updated[index - 1]] = [updated[index - 1], updated[index]]; // Меняем местами
+      setAttributes(updated);
+    }
+  };
+
+  // Перемещение атрибута вниз
+  const moveAttributeDown = (id: string) => {
+    const index = attributes.findIndex((attr) => attr.id === id);
+    if (index < attributes.length - 1) {
+      const updated = [...attributes];
+      [updated[index], updated[index + 1]] = [updated[index + 1], updated[index]]; // Меняем местами
+      setAttributes(updated);
+    }
+  };
+
   // "Кнопка" как AutoLayout с onClick
   const Button = ({
     onClick,
@@ -197,6 +217,8 @@ function ERModeller() {
             onTextEditEnd={(e) => updateAttribute(attr.id, "description", e.characters)}
             width={300}
           />
+          <IconButton onClick={() => moveAttributeUp(attr.id)}>⬆️</IconButton>
+          <IconButton onClick={() => moveAttributeDown(attr.id)}>⬇️</IconButton>
           <IconButton onClick={() => removeAttribute(attr.id)}>❌</IconButton>
         </AutoLayout>
       ))}
