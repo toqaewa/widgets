@@ -13,13 +13,13 @@ type Attribute = {
 
 const COLOR_PALETTE = [
   { name: "grey", value: { r: 0.95, g: 0.95, b: 0.95, a: 1 } }, // Серый
-  { name: "blue", value: { r: 0.2, g: 0.6, b: 1, a: 1 } }, // Синий
-  { name: "green", value: { r: 0.2, g: 0.8, b: 0.4, a: 1 } }, // Зеленый
-  { name: "orange", value: { r: 1, g: 0.6, b: 0.2, a: 1 } }, // Оранжевый
-  { name: "red", value: { r: 1, g: 0.2, b: 0.2, a: 1 } }, // Красный
-  { name: "purple", value: { r: 0.6, g: 0.2, b: 1, a: 1 } }, // Фиолетовый
-  { name: "pink", value: { r: 1, g: 0.4, b: 0.8, a: 1 } }, // Розовый
-  { name: "turquoise", value: { r: 0.2, g: 0.8, b: 0.8, a: 1 } }, // Бирюзовый
+  { name: "blue", value: { r: 0.57, g: 0.77, b: 0.98, a: 1 } }, // Синий
+  { name: "green", value: { r: 0.57, g: 0.87, b: 0.67, a: 1 } }, // Зеленый UIColor(red: 0.57, green: 0.87, blue: 0.67, alpha: 1)
+  { name: "orange", value: { r: 0.98, g: 0.77, b: 0.57, a: 1 } }, // Оранжевый UIColor(red: 0.98, green: 0.77, blue: 0.57, alpha: 1)
+  { name: "red", value: { r: 0.98, g: 0.57, b: 0.57, a: 1 } }, // Красный UIColor(red: 0.98, green: 0.57, blue: 0.57, alpha: 1)
+  { name: "purple", value: { r: 0.77, g: 0.57, b: 0.98, a: 1 } }, // Фиолетовый UIColor(red: 0.77, green: 0.57, blue: 0.98, alpha: 1)
+  { name: "pink", value: { r: 0.98, g: 0.67, b: 0.87, a: 1 } }, // Розовый UIColor(red: 0.98, green: 0.67, blue: 0.87, alpha: 1)
+  { name: "turquoise", value: { r: 0.57, g: 0.87, b: 0.87, a: 1 } }, // Бирюзовый UIColor(red: 0.57, green: 0.87, blue: 0.87, alpha: 1)
 ];
 
 function ERModeller() {
@@ -219,7 +219,7 @@ function ERModeller() {
             onTextEditEnd={(e) => setLinkURL(e.characters)}
             width="fill-parent"
             hoverStyle={{
-              fill: [{ type: "solid", color: { r: 0.2, g: 0.6, b: 1, a: 1 } }],
+              fill: [{ type: "solid", color: { r: 0, g: 0.47, b: 1, a: 1 } }],
             }}
             textDecoration="underline" 
           />
