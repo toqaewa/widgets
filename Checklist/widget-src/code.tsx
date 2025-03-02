@@ -1,3 +1,6 @@
+/// <reference types="@figma/plugin-typings" />
+/// <reference types="@figma/widget-typings" />
+
 const { widget } = figma
 const { Frame } = widget
 
