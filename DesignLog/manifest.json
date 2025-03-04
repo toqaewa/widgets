@@ -17,5 +17,6 @@
     "allowedDomains": [
       "none"
     ]
-  }
+  },
+  "permissions": ["currentuser"]
 }
