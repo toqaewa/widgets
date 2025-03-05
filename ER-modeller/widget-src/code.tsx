@@ -188,6 +188,7 @@ function ERModeller() {
       spacing={12}
       fill={[{ type: "solid", color: widgetColor }]} // Применяем выбранный цвет
       cornerRadius={16}
+      minWidth={300}
     >
 
       <Input
@@ -258,7 +259,6 @@ function ERModeller() {
           <IconButton onClick={() => removeAttribute(attr.id)}>✕</IconButton>
         </AutoLayout>
       ))}
-      <AutoLayout width={300}><Text fontSize={1}> </Text></AutoLayout>
     </AutoLayout>
   );
 }
