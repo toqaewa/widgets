@@ -1,7 +1,7 @@
 // This widget will open an Iframe window with buttons to show a toast message and close the window.
 
 const { widget } = figma
-const { AutoLayout, Text, Input, usePropertyMenu, useSyncedState, useEffect } = widget;
+const { AutoLayout, Text, Input, SVG, usePropertyMenu, useSyncedState, useEffect } = widget;
 
 type Log = {
   id: string,
@@ -12,6 +12,13 @@ type Log = {
   type: string,
 };
 
+const STATUSES = [
+  { name: "in design", value: { r: 0.57, g: 0.77, b: 0.98, a: 1 } },
+  { name: "in production", value: { r: 0.57, g: 0.87, b: 0.67, a: 1 } },
+  { name: "deprecated", value: { r: 0.98, g: 0.57, b: 0.57, a: 1 } },
+  { name: "archived", value: { r: 0.75, g: 0.75, b: 0.75, a: 1 } },
+];
+
 function DesignLog() {
 
   const [title, setTitle] = useSyncedState("title", "");
@@ -19,7 +26,8 @@ function DesignLog() {
   const [showDescription, setShowDescription] = useSyncedState("showDescription", true);
   const [createdAt, setCreatedAt] = useSyncedState("createdAt", "");
   const [version, setVersion] = useSyncedState("version", "1.0.0");
-  const [status, setStatus] = useSyncedState("status", "backlog");
+  const [status, setStatus] = useSyncedState("status", STATUSES[0].name);
+  const [statusColor, setStatusColor] = useSyncedState("statusColor", STATUSES[0].value);
   const [link, setLink] = useSyncedState("link", "");
   const [showLink, setShowLink] = useSyncedState("showLink", true)
   const [logs, setLogs] = useSyncedState<Log[]>("logs", []);
@@ -67,6 +75,17 @@ function DesignLog() {
     </AutoLayout>
   );
 
+  const handleStatusChange = (propertyName: string) => {
+    const selectedStatus = STATUSES.find((status) => status.name ===propertyName)?.name;
+    if (selectedStatus) {
+      setStatus(selectedStatus);
+    }
+    const selectedColor = STATUSES.find((status) => status.name === propertyName)?.value;
+    if (selectedColor) {
+      setStatusColor(selectedColor);
+    }
+  }
+
   function addLog() {
     const newLog: Log = {
       id: Date.now().toString(),
@@ -105,10 +124,25 @@ function DesignLog() {
         </svg>
         `,
       },
+      {
+        itemType: "dropdown",
+        propertyName: "status",
+        tooltip: "Статус",
+        options: STATUSES.map((status) => ({
+          option: status.name,
+          label: status.name,
+        })),
+        selectedOption: STATUSES.find((status) => 
+          status.value.r === statusColor.r &&
+          status.value.g === statusColor.g &&
+          status.value.b === statusColor.b
+        )?.name || STATUSES[0].name,
+      },
     ],
-    ({ propertyName }) => {
+    ({ propertyName, propertyValue }) => {
       if (propertyName === "toggleDescription") setShowDescription(!showDescription);
       if (propertyName === "toggleLink") setShowLink(!showLink);
+      if (propertyName === "status" && propertyValue) handleStatusChange(propertyValue);
     }
   );
 
@@ -134,6 +168,15 @@ function DesignLog() {
       fill={[{ type: "solid", color: { r: 0.99, g: 0.99, b: 0.99, a: 1 } }]}
       stroke={[{ type: "solid", color: {r: 0.90, g: 0.90, b: 0.90, a: 1} }]}
       >
+      <AutoLayout
+        direction="horizontal"
+        width={"hug-contents"}
+        fill={[{ type: "solid", color: statusColor }]}
+        padding={4}
+        cornerRadius={8}
+      >
+        <Text>{status}</Text>
+      </AutoLayout>
       <Input
         value={title}
         placeholder="Название макета"
