@@ -28,6 +28,18 @@ function DesignLog() {
   ? new Date(Math.max(...logs.map(log => new Date(log.date).getTime()))).toISOString() 
   : null;
 
+  const formatDate = (isoString: string) => {
+    const date = new Date(isoString);
+    return date.toLocaleString("ru-RU", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).replace(",", " @");
+  };
+
   useEffect(() => {
     if (!createdAt) {
       setCreatedAt(new Date().toISOString());
@@ -157,7 +169,7 @@ function DesignLog() {
           width={"hug-contents"}
         >
           <Text fontSize={12}>Created</Text>
-          <Text>{createdAt ? new Date(createdAt).toLocaleString() : "—"}</Text>
+          <Text>{createdAt ? formatDate(createdAt) : "—"}</Text>
         </AutoLayout>
 
         <AutoLayout
@@ -166,7 +178,7 @@ function DesignLog() {
           width={"hug-contents"}
         >
           <Text fontSize={12}>Last Update</Text>
-          <Text>{lastLogDate ? new Date(lastLogDate).toLocaleString() : "—"}</Text>
+          <Text>{lastLogDate ? formatDate(lastLogDate) : "—"}</Text>
         </AutoLayout>
 
         <AutoLayout
