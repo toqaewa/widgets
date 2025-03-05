@@ -127,7 +127,7 @@ function DesignLog() {
           <Input 
             value={log.description} 
             placeholder="Описание изменений" 
-            onTextEditEnd={(e) => updateLog(log.description, "description", e.characters)}
+            onTextEditEnd={(e) => updateLog(log.id, "description", e.characters)}
           />
           <Input 
             value={log.link} 
