@@ -51,6 +51,7 @@ function ERModeller() {
       description: "",
     };
     setAttributes([...attributes, newAttr]);
+    setWidth(800);
   };
 
   // Обновление атрибута
@@ -258,20 +259,34 @@ function ERModeller() {
         </AutoLayout>
       )}
 
-      {attributes.map((attr) => (
+      {(width === 300 || width === 500) && attributes.length > 0 && (
+        <AutoLayout
+          padding={4}
+          cornerRadius={4}
+          onClick={() => setWidth(800)}
+          hoverStyle={{
+            fill: [{ type: "solid", color: { r: 0.2, g: 0.6, b: 1, a: 0.2 } }]
+          }}
+        >
+          <Text fontSize={12}>Показать атрибуты</Text>
+        </AutoLayout>
+      )}
+
+      { !(width === 300 || width === 500) && attributes.map((attr) => (
         <AutoLayout
           key={attr.id}
           direction="horizontal"
-          padding={16}
+          padding={8}
           spacing={4}
           fill={[{ type: "solid", color: { r: 1, g: 1, b: 1, a: 0.4 } }]}
           cornerRadius={8}
+          width={"fill-parent"}
         >
           <Input
             placeholder="Название"
             value={attr.name}
             onTextEditEnd={(e) => updateAttribute(attr.id, "name", e.characters)}
-            width={200}
+            width={240}
           />
           <Input
             placeholder="Тип"
@@ -283,7 +298,7 @@ function ERModeller() {
             placeholder="Описание"
             value={attr.description}
             onTextEditEnd={(e) => updateAttribute(attr.id, "description", e.characters)}
-            width={300}
+            width="fill-parent"
           />
           <IconButton onClick={() => moveAttributeUp(attr.id)}>⋀</IconButton>
           <IconButton onClick={() => moveAttributeDown(attr.id)}>⋁</IconButton>
