@@ -22,6 +22,12 @@ const COLOR_PALETTE = [
   { name: "turquoise", value: { r: 0.57, g: 0.87, b: 0.87, a: 1 } }, // Бирюзовый UIColor(red: 0.57, green: 0.87, blue: 0.87, alpha: 1)
 ];
 
+const SIZES = [
+  { name: "S", value: 300 },
+  { name: "M", value: 500 },
+  { name: "L", value: 800 },
+];
+
 function ERModeller() {
   // Синхронизированное состояние
   const [entityName, setEntityName] = useSyncedState("entityName", "");
@@ -32,6 +38,9 @@ function ERModeller() {
   // Настройки видимости полей
   const [hasDescription, setHasDescription] = useSyncedState("hasDescription", true);
   const [hasLink, setHasLink] = useSyncedState("hasLink", true);
+  // Настройка ширины виджета
+  const [width, setWidth] = useSyncedState("width", SIZES[0].value);
+
 
   // Функция для добавления нового атрибута
   const addAttribute = () => {
@@ -126,6 +135,14 @@ function ERModeller() {
     }
   };
 
+  // Обработчик выбора размера
+  const handleSizeChange = (propertyName: string) => {
+  const selectedSize = SIZES.find((size) => size.name === propertyName)?.value;
+  if (selectedSize) {
+    setWidth(selectedSize);
+  }
+};
+
   // работа с менюшкой виджета - пока сюда только переехала кнопка Добавить атрибут
   usePropertyMenu(
     [
@@ -153,6 +170,18 @@ function ERModeller() {
         )?.name || COLOR_PALETTE[0].name, // Выбранный цвет по умолчанию
       },
       {
+        itemType: "dropdown",
+        propertyName: "width",
+        tooltip: "Размер виджета",
+        options: SIZES.map((size) => ({
+          option: size.name,
+          label: size.name,
+        })),
+        selectedOption: SIZES.find((size) => 
+          size.value === width
+        )?.name || SIZES[0].name,
+      },
+      {
         itemType: "toggle",
         propertyName: "hasDescription",
         tooltip: "Показывать описание",
@@ -178,6 +207,7 @@ function ERModeller() {
       if (propertyName === "color" && propertyValue) handleColorChange(propertyValue);
       if (propertyName === "hasDescription") setHasDescription(!hasDescription);
       if (propertyName === "hasLink") setHasLink(!hasLink);
+      if (propertyName === "width" && propertyValue) handleSizeChange(propertyValue);
     }
   );
 
@@ -188,6 +218,7 @@ function ERModeller() {
       spacing={12}
       fill={[{ type: "solid", color: widgetColor }]} // Применяем выбранный цвет
       cornerRadius={16}
+      width={width}
       minWidth={300}
     >
 
