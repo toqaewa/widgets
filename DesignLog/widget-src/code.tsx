@@ -27,6 +27,7 @@ function DesignLog() {
   const [showDescription, setShowDescription] = useSyncedState("showDescription", true);
   const [createdAt, setCreatedAt] = useSyncedState("createdAt", "");
   const [version, setVersion] = useSyncedState("version", "1.0.0");
+  const [showVersion, setShowVersion] = useSyncedState("showVersion", true);
   const [status, setStatus] = useSyncedState("status", STATUSES[0].name);
   const [statusColor, setStatusColor] = useSyncedState("statusColor", STATUSES[0].value);
   const [link, setLink] = useSyncedState("link", "");
@@ -130,6 +131,19 @@ function DesignLog() {
         `,
       },
       {
+        itemType: "toggle",
+        propertyName: "toggleVersion",
+        tooltip: "Показывать версию",
+        isToggled: showVersion,
+        icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6 2H14L20 8V20C20 21.1 19.1 22 18 22H6C4.9 22 4 21.1 4 20V4C4 2.9 4.9 2 6 2Z" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M14 2V8H20" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="8.5" y="17" font-size="8" font-weight="bold" font-family="Arial" fill="white">V</text>
+        </svg>
+        `,
+      },
+
+      {
         itemType: "dropdown",
         propertyName: "status",
         tooltip: "Статус",
@@ -147,6 +161,7 @@ function DesignLog() {
     ({ propertyName, propertyValue }) => {
       if (propertyName === "toggleDescription") setShowDescription(!showDescription);
       if (propertyName === "toggleLink") setShowLink(!showLink);
+      if (propertyName === "toggleVersion") setShowVersion(!showVersion);
       if (propertyName === "status" && propertyValue) handleStatusChange(propertyValue);
     }
   );
@@ -229,10 +244,11 @@ function DesignLog() {
           <Text>{lastLogDate ? formatDate(lastLogDate) : "—"}</Text>
         </AutoLayout>
 
+        {showVersion && (
         <AutoLayout
-          direction="vertical"
-          spacing={4}
-          width={"hug-contents"}
+        direction="vertical"
+        spacing={4}
+        width={"hug-contents"}
         >
           <Text fontSize={12}>Version</Text>
           <Input
@@ -242,6 +258,8 @@ function DesignLog() {
             width="fill-parent"
           />
         </AutoLayout>
+        )}
+        
       </AutoLayout>
       <Button onClick={addLog}>Добавить лог</Button>
 
