@@ -94,7 +94,7 @@ function DesignLog() {
       date: new Date().toISOString(),
       type: "added",
     };
-    setLogs([...logs, newLog]);
+    setLogs([newLog, ...logs]);
   }
 
   function updateLog(id: string, field: keyof Log, value: string) {
