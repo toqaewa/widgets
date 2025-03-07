@@ -18,6 +18,8 @@ const STATUSES = [
   { name: "archived", value: { r: 0.75, g: 0.75, b: 0.75, a: 1 } },
 ];
 
+const logTypes = ["added", "fixed", "changed", "deprecated", "removed"];
+
 function DesignLog() {
 
   const [title, setTitle] = useSyncedState("title", "");
@@ -259,9 +261,33 @@ function DesignLog() {
             placeholder="Ссылка на новый макет" 
             onTextEditEnd={(e) => updateLog(log.id, "link", e.characters)}
           />
-          <Text fontSize={12}>
-            Тип: {log.type}
-          </Text>
+          <AutoLayout spacing={4}>
+            {logTypes.map((type) => (
+              <AutoLayout
+                key={type}
+                padding={6}
+                spacing={4}
+                cornerRadius={99}
+                fill={log.type === type ? "#007AFF" : "#ddd"}
+                onClick={() => updateLog(log.id, "type", type)}
+              >
+                {log.type === type && (
+                  <Text
+                    fontSize={12}
+                    fill={"#fff"}
+                  >
+                    ✓
+                  </Text>
+                )}
+                <Text
+                  fontSize={12}
+                  fill={log.type === type ? "#fff" : "#000"}
+                >
+                  {type}
+                </Text>
+              </AutoLayout>
+            ))}
+          </AutoLayout>
           <Button onClick={() => removeLog(log.id)}>Удалить лог</Button>
         </AutoLayout>
       ))}
