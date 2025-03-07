@@ -101,6 +101,10 @@ function DesignLog() {
     setLogs(logs.map(log => log.id === id ? { ...log, [field]: value } : log));
   }
 
+  function removeLog(id: string) {
+    setLogs(logs.filter(log => log.id !== id))
+  }
+
   usePropertyMenu(
     [
       {
@@ -258,6 +262,7 @@ function DesignLog() {
           <Text fontSize={12}>
             Тип: {log.type}
           </Text>
+          <Button onClick={() => removeLog(log.id)}>Удалить лог</Button>
         </AutoLayout>
       ))}
 
