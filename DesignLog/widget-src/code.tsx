@@ -40,15 +40,38 @@ function DesignLog() {
   : null;
 
   const formatDate = (isoString: string) => {
+    // const date = new Date(isoString);
+    // return date.toLocaleString("ru-RU", {
+    //   day: "2-digit",
+    //   month: "short",
+    //   year: "numeric",
+    //   hour: "2-digit",
+    //   minute: "2-digit",
+    //   hour12: false,
+    // }).replace(",", " @");
+
     const date = new Date(isoString);
-    return date.toLocaleString("ru-RU", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    }).replace(",", " @");
+
+  // Проверка на валидность даты
+  if (isNaN(date.getTime())) {
+    return "Invalid Date";
+  }
+
+  // Месяцы для отображения
+  const months = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+  ];
+
+  // Получаем компоненты даты
+  const day = String(date.getDate()).padStart(2, "0"); // День (09)
+  const month = months[date.getMonth()]; // Месяц (Mar)
+  const year = date.getFullYear(); // Год (2025)
+  const hours = String(date.getHours()).padStart(2, "0"); // Часы (16)
+  const minutes = String(date.getMinutes()).padStart(2, "0"); // Минуты (17)
+
+  // Форматируем дату
+  return `${day} ${month} ${year} @ ${hours}:${minutes}`;
   };
 
   useEffect(() => {
@@ -169,16 +192,16 @@ function DesignLog() {
   );
 
 
-  useEffect(() => {
-    figma.ui.onmessage = (msg) => {
-      if (msg.type === 'showToast') {
-        figma.notify('Hello widget')
-      }
-      if (msg.type === 'close') {
-        figma.closePlugin()
-      }
-    }
-  })
+  // useEffect(() => {
+  //   figma.ui.onmessage = (msg) => {
+  //     if (msg.type === 'showToast') {
+  //       figma.notify('Hello widget')
+  //     }
+  //     if (msg.type === 'close') {
+  //       figma.closePlugin()
+  //     }
+  //   }
+  // })
 
   return (
     <AutoLayout 
@@ -266,19 +289,43 @@ function DesignLog() {
       <Button onClick={addLog}>Добавить лог</Button>
 
       {logs.map((log) => (
-        <AutoLayout key={log.id} direction="vertical" padding={5} stroke="#ddd">
-          {log.avatar && (
-            <Image src={log.avatar} width={24} height={24} cornerRadius={12} />
-            )}
-          <Text fontSize={12}>
-              {log.author} 
-              ({new Date(log.date).toLocaleDateString()})
-          </Text>
-          <Input 
-            value={log.description} 
-            placeholder="Описание изменений" 
-            onTextEditEnd={(e) => updateLog(log.id, "description", e.characters)}
-          />
+        <AutoLayout 
+          key={log.id} 
+          direction="vertical" 
+          padding={12} 
+          spacing={8}
+          cornerRadius={12}
+          stroke="#ddd"
+          width={"fill-parent"}
+        >
+          <AutoLayout
+            direction="horizontal"
+            spacing={8}
+          >
+            {log.avatar && (
+              <Image src={log.avatar} width={24} height={24} cornerRadius={12} />
+              )}
+            <Text fontSize={12}>
+                {log.author} 
+            </Text>
+            <Text fontSize={12}>
+                {formatDate(log.date)}
+            </Text>
+          </AutoLayout>
+          <AutoLayout 
+            stroke="#ddd" 
+            width={"fill-parent"} 
+            padding={4} 
+            cornerRadius={8}
+          >
+            <Input 
+              value={log.description} 
+              placeholder="Описание изменений" 
+              onTextEditEnd={(e) => updateLog(log.id, "description", e.characters)}
+              inputBehavior="multiline"
+              width={"fill-parent"}
+            />
+          </AutoLayout>
           <Input 
             value={log.link} 
             placeholder="Ссылка на новый макет" 
