@@ -1,4 +1,3 @@
-
 const { widget } = figma
 const { AutoLayout, Text, Input, SVG, Image, usePropertyMenu, useSyncedState, useEffect } = widget;
 
@@ -19,7 +18,7 @@ const STATUSES = [
   { name: "archived", value: { r: 0.75, g: 0.75, b: 0.75, a: 1 } },
 ];
 
-const logTypes = ["added", "fixed", "changed", "deprecated", "removed"];
+const logTypes = ["added", "changed", "removed"];
 
 function DesignLog() {
 
@@ -41,38 +40,28 @@ function DesignLog() {
   : null;
 
   const formatDate = (isoString: string) => {
-    // const date = new Date(isoString);
-    // return date.toLocaleString("ru-RU", {
-    //   day: "2-digit",
-    //   month: "short",
-    //   year: "numeric",
-    //   hour: "2-digit",
-    //   minute: "2-digit",
-    //   hour12: false,
-    // }).replace(",", " @");
-
     const date = new Date(isoString);
 
-  // Проверка на валидность даты
-  if (isNaN(date.getTime())) {
-    return "Invalid Date";
-  }
+    // Проверка на валидность даты
+    if (isNaN(date.getTime())) {
+      return "Invalid Date";
+    }
 
-  // Месяцы для отображения
-  const months = [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-  ];
+    // Месяцы для отображения
+    const months = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ];
 
-  // Получаем компоненты даты
-  const day = String(date.getDate()).padStart(2, "0"); // День (09)
-  const month = months[date.getMonth()]; // Месяц (Mar)
-  const year = date.getFullYear(); // Год (2025)
-  const hours = String(date.getHours()).padStart(2, "0"); // Часы (16)
-  const minutes = String(date.getMinutes()).padStart(2, "0"); // Минуты (17)
+    // Получаем компоненты даты
+    const day = String(date.getDate()).padStart(2, "0"); // День (09)
+    const month = months[date.getMonth()]; // Месяц (Mar)
+    const year = date.getFullYear(); // Год (2025)
+    const hours = String(date.getHours()).padStart(2, "0"); // Часы (16)
+    const minutes = String(date.getMinutes()).padStart(2, "0"); // Минуты (17)
 
-  // Форматируем дату
-  return `${day} ${month} ${year} @ ${hours}:${minutes}`;
+    // Форматируем дату
+    return `${day} ${month} ${year} @ ${hours}:${minutes}`;
   };
 
   useEffect(() => {
@@ -92,11 +81,11 @@ function DesignLog() {
     <AutoLayout
       padding={8}
       cornerRadius={4}
-      fill={[{ type: "solid", color: { r: 0.2, g: 0.6, b: 1, a: 1 } }]}
+      fill={"#ddd"}
       onClick={onClick}
-      hoverStyle={{ fill: [{ type: "solid", color: { r: 0.15, g: 0.55, b: 0.9, a: 1 } }] }}
+      hoverStyle={{ fill: [{ type: "solid", color: { r: 0.73, g: 0.73, b: 0.73, a: 1 } }] }}
     >
-      <Text fontSize={14} fontWeight="bold" fill={[{ type: "solid", color: { r: 1, g: 1, b: 1, a: 1 } }]}>
+      <Text fontSize={14} fill={"#000"}>
         {children}
       </Text>
     </AutoLayout>
@@ -131,7 +120,7 @@ function DesignLog() {
     children: string;
   }) => (
     <AutoLayout
-      padding={{ top: 2, right: 8, bottom: 2, left: 8 }}
+      padding={{ top: 2, right: 8, bottom: 2, left: 2 }}
       spacing={4}
       cornerRadius={4}
       hoverStyle={{ fill: [{ type: "solid", color: { r: 0.2, g: 0.6, b: 1, a: 0.2 } }] }}
@@ -265,25 +254,13 @@ function DesignLog() {
     }
   );
 
-
-  // useEffect(() => {
-  //   figma.ui.onmessage = (msg) => {
-  //     if (msg.type === 'showToast') {
-  //       figma.notify('Hello widget')
-  //     }
-  //     if (msg.type === 'close') {
-  //       figma.closePlugin()
-  //     }
-  //   }
-  // })
-
   return (
     <AutoLayout 
       direction="vertical" 
       minWidth={300}
       spacing={8} 
       padding={16}
-      cornerRadius={8}
+      cornerRadius={20}
       fill={[{ type: "solid", color: { r: 0.99, g: 0.99, b: 0.99, a: 1 } }]}
       stroke={[{ type: "solid", color: {r: 0.90, g: 0.90, b: 0.90, a: 1} }]}
       >
@@ -291,7 +268,7 @@ function DesignLog() {
         direction="horizontal"
         width={"hug-contents"}
         fill={[{ type: "solid", color: statusColor }]}
-        padding={4}
+        padding={{horizontal: 8, vertical: 2}}
         cornerRadius={8}
       >
         <Text>{status}</Text>
@@ -323,44 +300,48 @@ function DesignLog() {
       )}
       <AutoLayout
         direction="horizontal"
-        spacing={16}
+        spacing={64}
       >
         <AutoLayout
+          direction="horizontal"
+          spacing={16}
+        >
+          <AutoLayout
+            direction="vertical"
+            spacing={4}
+            width={"hug-contents"}
+          >
+            <Text fontSize={12}>Created</Text>
+            <Text>{createdAt ? formatDate(createdAt) : "—"}</Text>
+          </AutoLayout>
+
+          <AutoLayout
+            direction="vertical"
+            spacing={4}
+            width={"hug-contents"}
+          >
+            <Text fontSize={12}>Last Update</Text>
+            <Text>{lastLogDate ? formatDate(lastLogDate) : "—"}</Text>
+          </AutoLayout>
+
+          {showVersion && (
+          <AutoLayout
           direction="vertical"
           spacing={4}
           width={"hug-contents"}
-        >
-          <Text fontSize={12}>Created</Text>
-          <Text>{createdAt ? formatDate(createdAt) : "—"}</Text>
+          >
+            <Text fontSize={12}>Version</Text>
+            <Input
+              value={version}
+              placeholder="1.0.0"
+              onTextEditEnd={(e) => setVersion(e.characters)}
+              width="fill-parent"
+            />
+          </AutoLayout>
+          )}
         </AutoLayout>
-
-        <AutoLayout
-          direction="vertical"
-          spacing={4}
-          width={"hug-contents"}
-        >
-          <Text fontSize={12}>Last Update</Text>
-          <Text>{lastLogDate ? formatDate(lastLogDate) : "—"}</Text>
-        </AutoLayout>
-
-        {showVersion && (
-        <AutoLayout
-        direction="vertical"
-        spacing={4}
-        width={"hug-contents"}
-        >
-          <Text fontSize={12}>Version</Text>
-          <Input
-            value={version}
-            placeholder="1.0.0"
-            onTextEditEnd={(e) => setVersion(e.characters)}
-            width="fill-parent"
-          />
-        </AutoLayout>
-        )}
-
+        <Button onClick={addLog}>➕</Button>
       </AutoLayout>
-      <Button onClick={addLog}>Добавить лог</Button>
 
       {logs.map((log) => (
         <AutoLayout 
