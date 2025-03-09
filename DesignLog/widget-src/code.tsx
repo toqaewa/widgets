@@ -34,6 +34,7 @@ function DesignLog() {
   const [link, setLink] = useSyncedState("link", "");
   const [showLink, setShowLink] = useSyncedState("showLink", true)
   const [logs, setLogs] = useSyncedState<Log[]>("logs", []);
+  const [editingLogId, setEditingLogId] = useSyncedState<string | null>("editingLogId", null);
 
   const lastLogDate = logs.length > 0 
   ? new Date(Math.max(...logs.map(log => new Date(log.date).getTime()))).toISOString() 
@@ -101,6 +102,69 @@ function DesignLog() {
     </AutoLayout>
   );
 
+  const IconButton = ({
+    onClick,
+    children,
+  }: {
+    onClick: () => void;
+    children: string;
+  }) => (
+    <AutoLayout
+      padding={4}
+      cornerRadius={4}
+      fill={[ ]}
+      hoverStyle={{ fill: [{ type: "solid", color: { r: 0.2, g: 0.6, b: 1, a: 0.2 } }] }}
+      onClick={onClick}
+    >
+      <Text>
+        {children}
+      </Text>
+    </AutoLayout>
+  );
+
+  // ссылка
+  const Link = ({
+    onClick,
+    children,
+  }: {
+    onClick: () => void;
+    children: string;
+  }) => (
+    <AutoLayout
+      padding={{ top: 2, right: 8, bottom: 2, left: 8 }}
+      spacing={4}
+      cornerRadius={4}
+      hoverStyle={{ fill: [{ type: "solid", color: { r: 0.2, g: 0.6, b: 1, a: 0.2 } }] }}
+      onClick={onClick}
+    >
+      <Text fontSize={14}>🔗</Text>
+      <Text 
+        fontSize={14} 
+        fontWeight="bold" 
+        fill={[{ type: "solid", color: { r: 0.2, g: 0.6, b: 1, a: 1 } }]}
+      >
+        {children}
+      </Text>
+    </AutoLayout>
+  );
+
+  // Функция для открытия ссылки
+  const openLink = (url: string) => {
+    return new Promise<void>((resolve) => {
+      figma.showUI(__html__, { visible: false });
+  
+      // Отправляем URL во внешний интерфейс
+      figma.ui.postMessage({ type: "open-link", url });
+  
+      // Ожидаем сообщение от интерфейса о том, что ссылка открыта
+      figma.ui.onmessage = (message) => {
+        if (message.type === "link-opened") {
+          resolve(); // Разрешаем Promise после открытия ссылки
+        }
+      };
+    });
+  };
+
   const handleStatusChange = (propertyName: string) => {
     const selectedStatus = STATUSES.find((status) => status.name ===propertyName)?.name;
     if (selectedStatus) {
@@ -123,6 +187,7 @@ function DesignLog() {
       type: "added",
     };
     setLogs([newLog, ...logs]);
+    setEditingLogId(newLog.id);
   }
 
   function updateLog(id: string, field: keyof Log, value: string) {
@@ -132,6 +197,15 @@ function DesignLog() {
   function removeLog(id: string) {
     setLogs(logs.filter(log => log.id !== id))
   }
+
+  function startEditingLog(id: string) {
+    setEditingLogId(id);
+  }
+
+  function saveLog(id: string) {
+    setEditingLogId(null);
+  }
+
 
   usePropertyMenu(
     [
@@ -292,73 +366,150 @@ function DesignLog() {
         <AutoLayout 
           key={log.id} 
           direction="vertical" 
-          padding={12} 
+          width={"fill-parent"}
           spacing={8}
+          padding={{ top: 4, right: 4, bottom: 4, left: 4 }} 
           cornerRadius={12}
           stroke="#ddd"
-          width={"fill-parent"}
         >
-          <AutoLayout
-            direction="horizontal"
-            spacing={8}
-          >
-            {log.avatar && (
-              <Image src={log.avatar} width={24} height={24} cornerRadius={12} />
-              )}
-            <Text fontSize={12}>
-                {log.author} 
-            </Text>
-            <Text fontSize={12}>
-                {formatDate(log.date)}
-            </Text>
-          </AutoLayout>
-          <AutoLayout 
-            stroke="#ddd" 
-            width={"fill-parent"} 
-            padding={4} 
-            cornerRadius={8}
-          >
-            <Input 
-              value={log.description} 
-              placeholder="Описание изменений" 
-              onTextEditEnd={(e) => updateLog(log.id, "description", e.characters)}
-              inputBehavior="multiline"
-              width={"fill-parent"}
-            />
-          </AutoLayout>
-          <Input 
-            value={log.link} 
-            placeholder="Ссылка на новый макет" 
-            onTextEditEnd={(e) => updateLog(log.id, "link", e.characters)}
-          />
-          <AutoLayout spacing={4}>
-            {logTypes.map((type) => (
+          {editingLogId === log.id ? (
+            <>
               <AutoLayout
-                key={type}
-                padding={6}
-                spacing={4}
-                cornerRadius={99}
-                fill={log.type === type ? "#007AFF" : "#ddd"}
-                onClick={() => updateLog(log.id, "type", type)}
+                direction="horizontal"
+                spacing={"auto"}
+                width={"fill-parent"}
+                verticalAlignItems="center"
+                padding={4}
               >
-                {log.type === type && (
-                  <Text
-                    fontSize={12}
-                    fill={"#fff"}
-                  >
-                    ✓
-                  </Text>
-                )}
-                <Text
-                  fontSize={12}
-                  fill={log.type === type ? "#fff" : "#000"}
+                <AutoLayout
+                  direction="horizontal"
+                  spacing={8}
+                  padding={{ top: 0, right: 4, bottom: 0, left: 4 }}
                 >
-                  {type}
-                </Text>
+                  {log.avatar && (
+                    <Image src={log.avatar} width={20} height={20} cornerRadius={20} />
+                  )}
+                  <Text fontSize={12} lineHeight={20} fontWeight={"semi-bold"}>
+                    {log.author}
+                  </Text>
+                  <Text fontSize={12} lineHeight={20} fontWeight={"semi-bold"}>
+                    {formatDate(log.date)}
+                  </Text>
+                </AutoLayout>
+                <IconButton onClick={() => saveLog(log.id)}>💾</IconButton>
               </AutoLayout>
-            ))}
-          </AutoLayout>
-          <Button onClick={() => removeLog(log.id)}>Удалить лог</Button>
+              <AutoLayout
+                direction="vertical"
+                width={"fill-parent"}
+                padding={{ top: 0, right: 8, bottom: 8, left: 8 }}
+                spacing={8}
+              >
+                <AutoLayout spacing={4}>
+                  {logTypes.map((type) => (
+                    <AutoLayout
+                      key={type}
+                      padding={{ top: 4, right: 8, bottom: 4, left: 8 }}
+                      spacing={4}
+                      cornerRadius={99}
+                      fill={log.type === type ? "#007AFF" : "#ddd"}
+                      onClick={() => updateLog(log.id, "type", type)}
+                    >
+                      {log.type === type && (
+                        <Text fontSize={12} fill={"#fff"}>
+                          ✓
+                        </Text>
+                      )}
+                      <Text fontSize={12} fill={log.type === type ? "#fff" : "#000"}>
+                        {type}
+                      </Text>
+                    </AutoLayout>
+                  ))}
+                </AutoLayout>
+                <AutoLayout
+                  stroke={"#ddd"}
+                  width={"fill-parent"}
+                  padding={4}
+                  cornerRadius={8}
+                >
+                  <Input
+                    value={log.description}
+                    placeholder="Описание изменений"
+                    onTextEditEnd={(e) => updateLog(log.id, "description", e.characters)}
+                    inputBehavior="multiline"
+                    width={"fill-parent"}
+                  />
+                </AutoLayout>
+                <AutoLayout
+                  stroke={"#7CBDFF"}
+                  width={"fill-parent"}
+                  padding={4}
+                  spacing={4}
+                  cornerRadius={8}
+                  verticalAlignItems="center"
+                >
+                  <Text>🔗</Text>
+                  <Input
+                    value={log.link}
+                    placeholder="Ссылка на новый макет"
+                    onTextEditEnd={(e) => updateLog(log.id, "link", e.characters)}
+                    fill={"#0080FF"}
+                  />
+                </AutoLayout>
+                <Button onClick={() => removeLog(log.id)}>Удалить лог</Button>
+              </AutoLayout>
+            </>
+          ) : (
+            <>
+              <AutoLayout
+                direction="horizontal"
+                spacing={"auto"}
+                width={"fill-parent"}
+                verticalAlignItems="center"
+                padding={4}
+              >
+                <AutoLayout
+                  direction="horizontal"
+                  verticalAlignItems="center"
+                  spacing={8}
+                  padding={{ top: 0, right: 4, bottom: 0, left: 4 }}
+                >
+                  {log.avatar && (
+                    <Image src={log.avatar} width={20} height={20} cornerRadius={20} />
+                  )}
+                  <AutoLayout
+                    padding={{ top: 2, right: 8, bottom: 2, left: 8 }}
+                    cornerRadius={99}
+                    fill={"#ddd"}
+                  >
+                    <Text fontSize={12}>
+                      {log.type}
+                    </Text>
+                  </AutoLayout>
+                  <Text fontSize={12} fontWeight={"semi-bold"}>
+                    {log.author}
+                  </Text>
+                  <Text fontSize={12} fontWeight={"semi-bold"}>
+                    {formatDate(log.date)}
+                  </Text>
+                </AutoLayout>
+                <IconButton onClick={() => startEditingLog(log.id)}>📝</IconButton>
+              </AutoLayout>
+              {log.description !== "" && (
+                <AutoLayout
+                  padding={{ top: 0, right: 8, bottom: 8, left: 8 }}
+                >
+                  <Text fill={"#777"}>{log.description}</Text>
+                </AutoLayout>
+              )}
+              {log.link !== "" && (
+                <AutoLayout
+                  padding={{ top: 0, right: 8, bottom: 8, left: 8 }}
+                >
+                  <Link onClick={() => openLink(log.link)}>Ссылка на новый макет</Link>
+                </AutoLayout>
+              )}
+            </>
+          )} 
         </AutoLayout>
       ))}
 
