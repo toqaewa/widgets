@@ -1,10 +1,11 @@
 
 const { widget } = figma
-const { AutoLayout, Text, Input, SVG, usePropertyMenu, useSyncedState, useEffect } = widget;
+const { AutoLayout, Text, Input, SVG, Image, usePropertyMenu, useSyncedState, useEffect } = widget;
 
 type Log = {
   id: string,
   author: string,
+  avatar: string,
   description: string,
   link: string,
   date: string,
@@ -92,6 +93,7 @@ function DesignLog() {
     const newLog: Log = {
       id: Date.now().toString(),
       author: figma.currentUser?.name || "Unknown",
+      avatar: figma.currentUser?.photoUrl || "",
       description: "",
       link: "",
       date: new Date().toISOString(),
@@ -259,12 +261,15 @@ function DesignLog() {
           />
         </AutoLayout>
         )}
-        
+
       </AutoLayout>
       <Button onClick={addLog}>Добавить лог</Button>
 
       {logs.map((log) => (
         <AutoLayout key={log.id} direction="vertical" padding={5} stroke="#ddd">
+          {log.avatar && (
+            <Image src={log.avatar} width={24} height={24} cornerRadius={12} />
+            )}
           <Text fontSize={12}>
               {log.author} 
               ({new Date(log.date).toLocaleDateString()})
