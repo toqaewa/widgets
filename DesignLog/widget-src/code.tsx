@@ -305,12 +305,19 @@ function DesignLog() {
         />
       )}
       {showLink && (
-        <Input
-          value={link}
-          placeholder="Ссылка на макет"
-          onTextEditEnd={(e) => setLink(e.characters)}
-          width="fill-parent"
-        />
+        <AutoLayout direction="horizontal" spacing={8} width="fill-parent" verticalAlignItems="center">
+          <Text>🔗</Text>
+          <Input
+            value={link}
+            placeholder="Ссылка на макет"
+            onTextEditEnd={(e) => setLink(e.characters)}
+            width="fill-parent"
+            hoverStyle={{
+              fill: [{ type: "solid", color: { r: 0, g: 0.47, b: 1, a: 1 } }],
+            }}
+            textDecoration="underline" 
+          />
+        </AutoLayout>
       )}
       <AutoLayout
         direction="horizontal"
@@ -448,6 +455,7 @@ function DesignLog() {
                     placeholder="Ссылка на новый макет"
                     onTextEditEnd={(e) => updateLog(log.id, "link", e.characters)}
                     fill={"#0080FF"}
+                    width={"fill-parent"}
                   />
                 </AutoLayout>
                 <Button onClick={() => removeLog(log.id)}>Удалить лог</Button>
@@ -492,8 +500,9 @@ function DesignLog() {
               {log.description !== "" && (
                 <AutoLayout
                   padding={{ top: 0, right: 8, bottom: 8, left: 8 }}
+                  width={"fill-parent"}
                 >
-                  <Text fill={"#777"}>{log.description}</Text>
+                  <Text width={"fill-parent"} fill={"#777"}>{log.description}</Text>
                 </AutoLayout>
               )}
               {log.link !== "" && (
