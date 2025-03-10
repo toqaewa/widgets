@@ -365,7 +365,7 @@ function DesignLog() {
           spacing={8}
           padding={{ top: 4, right: 4, bottom: 4, left: 4 }} 
           cornerRadius={12}
-          stroke="#ddd"
+          stroke="#eee"
         >
           {editingLogId === log.id ? (
             <>
