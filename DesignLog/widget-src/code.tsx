@@ -18,7 +18,21 @@ const STATUSES = [
   { name: "archived", value: { r: 0.75, g: 0.75, b: 0.75, a: 1 } },
 ];
 
-const logTypes = ["added", "changed", "removed"];
+const logTypes = ["added", "changed", "removed"] as const;
+
+// типизация
+type LogType = typeof logTypes[number];
+type LogTypeColor = {
+  active: { r: number; g: number; b: number; a: number };
+  default: { r: number; g: number; b: number; a: number };
+};
+
+// Цвета для каждого типа тега
+const logTypesColors: Record<LogType, LogTypeColor> = {
+  added: { active: { r: 0.06, g: 0.76, b: 0, a: 1 }, default: { r: 0.52, g: 0.84, b: 0.49, a: 1 } }, // Зеленый
+  changed: { active: { r: 0.88, g: 0.75, b: 0, a: 1 }, default: { r: 0.92, g: 0.85, b: 0.49, a: 1 } }, // Желтый
+  removed: { active: { r: 0.92, g: 0, b: 0.38, a: 1 }, default: { r: 0.95, g: 0.49, b: 0.69, a: 1 } }, // Красный
+};
 
 function DesignLog() {
 
@@ -392,15 +406,15 @@ function DesignLog() {
                       padding={{ top: 4, right: 8, bottom: 4, left: 8 }}
                       spacing={4}
                       cornerRadius={99}
-                      fill={log.type === type ? "#007AFF" : "#ddd"}
+                      fill={log.type === type ? logTypesColors[type].active : logTypesColors[type].default}
                       onClick={() => updateLog(log.id, "type", type)}
                     >
                       {log.type === type && (
-                        <Text fontSize={12} fill={"#fff"}>
+                        <Text fontSize={12} fill={"#FCFCFC"}>
                           ✓
                         </Text>
                       )}
-                      <Text fontSize={12} fill={log.type === type ? "#fff" : "#000"}>
+                      <Text fontSize={12} fill={log.type === type ? "#FCFCFC" : "#000"}>
                         {type}
                       </Text>
                     </AutoLayout>
@@ -460,7 +474,7 @@ function DesignLog() {
                   <AutoLayout
                     padding={{ top: 2, right: 8, bottom: 2, left: 8 }}
                     cornerRadius={99}
-                    fill={"#ddd"}
+                    fill={logTypesColors[log.type as LogType].default}
                   >
                     <Text fontSize={12}>
                       {log.type}
