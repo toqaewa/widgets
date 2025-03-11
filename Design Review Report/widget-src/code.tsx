@@ -1,7 +1,5 @@
-// This widget will open an Iframe window with buttons to show a toast message and close the window.
-
 const { widget } = figma
-const { useEffect, Text } = widget
+const { AutoLayout, Text, Input, SVG, Image, usePropertyMenu, useSyncedState, useEffect } = widget
 
 function Widget() {
   useEffect(() => {
@@ -19,9 +17,6 @@ function Widget() {
     <Text
       fontSize={24}
       onClick={
-        // Use async callbacks or return a promise to keep the Iframe window
-        // opened. Resolving the promise, closing the Iframe window, or calling
-        // "figma.closePlugin()" will terminate the code.
         () =>
           new Promise((resolve) => {
             figma.showUI(__html__)
