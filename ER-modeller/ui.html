@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script>
+      window.onmessage = (event) => {
+        if (event.data.pluginMessage.type === "open-link") {
+          // Открываем ссылку в новой вкладке
+          window.open(event.data.pluginMessage.url, "_blank");
+
+          // Отправляем сообщение обратно в виджет
+          window.parent.postMessage({ pluginMessage: { type: "link-opened" } }, "*");
+        }
+      };
+    </script>
+  </head>
+  <body></body>
+</html>
