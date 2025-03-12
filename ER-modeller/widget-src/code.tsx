@@ -2,7 +2,7 @@
 /// <reference types="@figma/widget-typings" />
 
 const { widget } = figma;
-const { AutoLayout, Text, Input, Frame, useSyncedState, usePropertyMenu } = widget;
+const { AutoLayout, Text, Input, Frame, useSyncedState, usePropertyMenu, colorMapToOptions } = widget;
 
 type Attribute = {
   id: string;
@@ -12,14 +12,14 @@ type Attribute = {
 };
 
 const COLOR_PALETTE = [
-  { name: "grey", value: { r: 0.95, g: 0.95, b: 0.95, a: 1 } }, // Серый
-  { name: "blue", value: { r: 0.57, g: 0.77, b: 0.98, a: 1 } }, // Синий
-  { name: "green", value: { r: 0.57, g: 0.87, b: 0.67, a: 1 } }, // Зеленый UIColor(red: 0.57, green: 0.87, blue: 0.67, alpha: 1)
-  { name: "orange", value: { r: 0.98, g: 0.77, b: 0.57, a: 1 } }, // Оранжевый UIColor(red: 0.98, green: 0.77, blue: 0.57, alpha: 1)
-  { name: "red", value: { r: 0.98, g: 0.57, b: 0.57, a: 1 } }, // Красный UIColor(red: 0.98, green: 0.57, blue: 0.57, alpha: 1)
-  { name: "purple", value: { r: 0.77, g: 0.57, b: 0.98, a: 1 } }, // Фиолетовый UIColor(red: 0.77, green: 0.57, blue: 0.98, alpha: 1)
-  { name: "pink", value: { r: 0.98, g: 0.67, b: 0.87, a: 1 } }, // Розовый UIColor(red: 0.98, green: 0.67, blue: 0.87, alpha: 1)
-  { name: "turquoise", value: { r: 0.57, g: 0.87, b: 0.87, a: 1 } }, // Бирюзовый UIColor(red: 0.57, green: 0.87, blue: 0.87, alpha: 1)
+  { name: "grey", value: "#F2F2F2" }, // Серый
+  { name: "blue", value: "#91C4FA" }, // Синий
+  { name: "green", value: "#91DEAB" }, // Зеленый UIColor(red: 0.57, green: 0.87, blue: 0.67, alpha: 1)
+  { name: "orange", value: "#FAC491" }, // Оранжевый UIColor(red: 0.98, green: 0.77, blue: 0.57, alpha: 1)
+  { name: "red", value: "#FA9191" }, // Красный UIColor(red: 0.98, green: 0.57, blue: 0.57, alpha: 1)
+  { name: "purple", value: "#C491FA" }, // Фиолетовый UIColor(red: 0.77, green: 0.57, blue: 0.98, alpha: 1)
+  { name: "pink", value: "#FAABDE" }, // Розовый UIColor(red: 0.98, green: 0.67, blue: 0.87, alpha: 1)
+  { name: "turquoise", value: "#91DEDE" }, // Бирюзовый UIColor(red: 0.57, green: 0.87, blue: 0.87, alpha: 1)
 ];
 
 const SIZES = [
@@ -157,18 +157,14 @@ function ERModeller() {
         `,
       },
       {
-        itemType: "dropdown",
+        itemType: "color-selector",
         propertyName: "color",
         tooltip: "Цвет виджета",
         options: COLOR_PALETTE.map((color) => ({
-          option: color.name, // Уникальное значение для выбора
-          label: color.name,  // Отображаемое имя в меню
+          option: color.value, // Уникальное значение для выбора
+          tooltip: color.name,  // Отображаемое имя в меню
         })),
-        selectedOption: COLOR_PALETTE.find((color) => 
-          color.value.r === widgetColor.r &&
-          color.value.g === widgetColor.g &&
-          color.value.b === widgetColor.b
-        )?.name || COLOR_PALETTE[0].name, // Выбранный цвет по умолчанию
+        selectedOption: widgetColor, // Выбранный цвет по умолчанию
       },
       {
         itemType: "dropdown",
@@ -205,7 +201,7 @@ function ERModeller() {
     ],
     ({ propertyName, propertyValue }) => {
       if (propertyName === "add-attribute") addAttribute();
-      if (propertyName === "color" && propertyValue) handleColorChange(propertyValue);
+      if (propertyName === "color" && propertyValue) { setWidgetColor(propertyValue) }
       if (propertyName === "hasDescription") setHasDescription(!hasDescription);
       if (propertyName === "hasLink") setHasLink(!hasLink);
       if (propertyName === "width" && propertyValue) handleSizeChange(propertyValue);
