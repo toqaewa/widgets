@@ -154,9 +154,20 @@ function Widget() {
           status.fillColor.b === statusFillColor.b
         )?.name || STATUSES[0].name,
       },
+      {
+        itemType: "dropdown",
+        propertyName: "env",
+        tooltip: "Environment",
+        options: ENVS.map((env) => ({
+          option: env.name,
+          label: env.name,
+        })),
+        selectedOption: env,
+      },
     ],
     ({ propertyName, propertyValue }) => {
       if (propertyName === "status" && propertyValue) handleStatusChange(propertyValue);
+      if (propertyName === "env" && propertyValue) setEnv(propertyValue);
     }
   );
 
@@ -168,6 +179,7 @@ function Widget() {
     >
       <StatusTag/>
       <ChangeLog children="Conducted"/>
+      <Text>{env}</Text>
       <Text
         fontSize={24}
         onClick={
