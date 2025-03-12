@@ -308,6 +308,7 @@ usePropertyMenu(
 
       {links.map((link) => (
         <AutoLayout
+          key={link.id}
           direction="vertical"
           spacing={8}
           width={"fill-parent"}
@@ -320,22 +321,42 @@ usePropertyMenu(
                 spacing={8}
                 width={"fill-parent"}
               >
-                <Input
-                  value={link.text} 
-                  placeholder="Текст ссылки"
-                  onTextEditEnd={(e) => updateLink(link.id, "text", e.characters)}
-                  fill={"#0080FF"}
+                <AutoLayout
+                  direction="horizontal"
+                  verticalAlignItems="center"
+                  spacing={4}
+                  fill={[{ type: "solid", color: { r: 1, g: 1, b: 1, a: 0.6 } }]}
                   width={"fill-parent"}
-                />
-                <Input
-                  value={link.URL} 
-                  placeholder="Ссылка"
-                  onTextEditEnd={(e) => updateLink(link.id, "URL", e.characters)}
-                  fill={"#0080FF"}
+                  cornerRadius={8}
+                  padding={4}
+                >
+                  <Text>📝</Text>
+                  <Input
+                    value={link.text} 
+                    placeholder="Текст ссылки"
+                    onTextEditEnd={(e) => updateLink(link.id, "text", e.characters)}
+                    width={"fill-parent"}
+                  />
+                </AutoLayout>
+                <AutoLayout
+                  direction="horizontal"
+                  verticalAlignItems="center"
+                  spacing={4}
+                  fill={[{ type: "solid", color: { r: 1, g: 1, b: 1, a: 0.6 } }]}
                   width={"fill-parent"}
-                />
-                <IconButton onClick={() => saveLink(link.id)}>Save link</IconButton>
-                <IconButton onClick={() => removeLink(link.id)}>Remove link</IconButton>
+                  cornerRadius={8}
+                  padding={4}
+                >
+                  <Text>🔗</Text>
+                  <Input
+                    value={link.URL} 
+                    placeholder="Ссылка"
+                    onTextEditEnd={(e) => updateLink(link.id, "URL", e.characters)}
+                    width={"fill-parent"}
+                  />
+                </AutoLayout>
+                <IconButton onClick={() => saveLink(link.id)}>💾</IconButton>
+                <IconButton onClick={() => removeLink(link.id)}>🗑️</IconButton>
               </AutoLayout>
             </>
           ) : (
@@ -343,12 +364,12 @@ usePropertyMenu(
               <AutoLayout
                 direction="horizontal"
                 verticalAlignItems="center"
-                spacing={8}
+                spacing={4}
                 width={"fill-parent"}
               >
                 <LinkButton onClick={() => openLink(link.URL)}>{link.text}</LinkButton>
-                <IconButton onClick={() => startEditingLink(link.id)}>Edit link</IconButton>
-                <IconButton onClick={() => removeLink(link.id)}>Remove link</IconButton>
+                <IconButton onClick={() => startEditingLink(link.id)}>✍︎</IconButton>
+                <IconButton onClick={() => removeLink(link.id)}>🗑️</IconButton>
               </AutoLayout>
             </>
           )}
@@ -397,9 +418,9 @@ usePropertyMenu(
             onTextEditEnd={(e) => updateAttribute(attr.id, "description", e.characters)}
             width="fill-parent"
           />
-          <IconButton onClick={() => moveAttributeUp(attr.id)}>⋀</IconButton>
-          <IconButton onClick={() => moveAttributeDown(attr.id)}>⋁</IconButton>
-          <IconButton onClick={() => removeAttribute(attr.id)}>✕</IconButton>
+          <IconButton onClick={() => moveAttributeUp(attr.id)}>⤴️</IconButton>
+          <IconButton onClick={() => moveAttributeDown(attr.id)}>⤵️</IconButton>
+          <IconButton onClick={() => removeAttribute(attr.id)}>🗑️</IconButton>
         </AutoLayout>
       ))}
     </AutoLayout>
