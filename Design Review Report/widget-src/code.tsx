@@ -112,18 +112,7 @@ function Widget() {
       <Text fill={[{ type: "solid", color: statusTextColor }]}>{status}</Text>
     </AutoLayout>
   );
-
-
-  // <AutoLayout
-  //       direction="horizontal"
-  //       width={"hug-contents"}
-  //       fill={[{ type: "solid", color: statusColor }]}
-  //       padding={{horizontal: 8, vertical: 2}}
-  //       cornerRadius={8}
-  //     >
-  //       <Text>{status}</Text>
-  //     </AutoLayout>
-
+  
   useEffect(() => {
     figma.ui.onmessage = (msg) => {
       if (msg.type === 'showToast') {
@@ -176,8 +165,17 @@ function Widget() {
       direction="vertical"
       padding={16}
       spacing={16}
+      width={"hug-contents"}
     >
       <StatusTag/>
+      <Input
+        value={subject}
+        placeholder="Design Review Subject"
+        width={320}
+        fontSize={24} 
+        fontWeight="bold"
+        onTextEditEnd={(e) => setSubject(e.characters)}
+      />
       <ChangeLog children="Conducted"/>
       <Text>{env}</Text>
       <Text
