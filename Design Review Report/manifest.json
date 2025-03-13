@@ -15,7 +15,8 @@
   "ui": "ui.html",
   "networkAccess": {
     "allowedDomains": [
-      "none"
+      "https://s3-alpha.figma.com"
     ]
-  }
+  },
+  "permissions": ["currentuser"]
 }
