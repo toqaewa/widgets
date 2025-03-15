@@ -3,6 +3,7 @@ const { AutoLayout, Text, Input, SVG, Image, usePropertyMenu, useSyncedState, us
 
 // статусы ревью сразу с цветами тега
 const STATUSES = [
+  { name: "IN PROGRESS", textColor: { r: 0.22, g: 0.25, b: 0.32, a: 1 }, fillColor: { r: 0.61, g: 0.64, b: 0.69, a: 1 } },
   { name: "APPROVED", textColor: { r: 0.09, g: 0.5, b: 0.24, a: 1 }, fillColor: { r: 0.29, g: 0.87, b: 0.5, a: 1 } },
   { name: "NEEDS SYNC", textColor: { r: 0.63, g: 0.38, b: 0.03, a: 1 }, fillColor: { r: 0.99, g: 0.88, b: 0.28, a: 1 } },
   { name: "NEEDS DESIGN", textColor: { r: 0.49, g: 0.13, b: 0.81, a: 1 }, fillColor: { r: 0.85, g: 0.71, b: 1, a: 1 } },
@@ -65,23 +66,33 @@ function Widget() {
   const [issues, setIssues] = useSyncedState<Issue[]>("issues", []);
   const [editingIssueId, setEditingIssueId] = useSyncedState<string | null>("editingIssueId", null);
 
+  const [errorState, setErrorState] = useSyncedState<Record<string, boolean>>("errorState", {});
+
   useEffect(() => {
     if (!conductedAt) {
       setConductedAt(new Date().toISOString());
     }
+    if (!author) {
+      setAuthor(figma.currentUser?.name || "Unknown");
+    }
+    if (!authorAvatar) {
+      setAuthorAvatar(figma.currentUser?.photoUrl || "");
+    }
   });
 
-  const ChangeLog = ({
-    children,
-  } : {
-    children: string;
-  }) => (
+  const ChangeLog = () => (
     <AutoLayout
-      direction="vertical"
-      spacing={4}
+      direction="horizontal"
+      spacing={8}
       width={"hug-contents"}
+      verticalAlignItems="center"
     >
-      <Text fontSize={12}>{children} at</Text>
+      {authorAvatar ? (
+        <Image src={authorAvatar} width={20} height={20} cornerRadius={99} />
+      ) : (
+        <AutoLayout width={20} height={20} cornerRadius={99} fill={"#999"}/>
+      )}
+      <Text fontWeight={"bold"}>{author}</Text>
       <Text>{conductedAt ? formatDate(conductedAt) : "—"}</Text>
     </AutoLayout>
   );
@@ -106,6 +117,7 @@ function Widget() {
       direction="horizontal"
       spacing={4}
       padding={{horizontal: 8, vertical: 2}}
+      cornerRadius={99}
       width={"hug-contents"}
       fill={[{ type: "solid", color: statusFillColor }]}
     >
@@ -148,7 +160,21 @@ function Widget() {
     setEditingIssueId(id);
   }
 
+  // function saveIssue(id: string) {
+  //   setEditingIssueId(null);
+  // }
+
   function saveIssue(id: string) {
+    const issue = issues.find((issue) => issue.id === id);
+    if (!issue) return;
+  
+    if (issue.summary.trim() === "") {
+      // Устанавливаем ошибку для конкретного issue
+      setErrorState((prev) => ({ ...prev, [id]: true }));
+      return;
+    }
+  
+    setErrorState((prev) => ({ ...prev, [id]: false }));
     setEditingIssueId(null);
   }
 
@@ -268,7 +294,14 @@ function Widget() {
       width={"hug-contents"}
       fill={"#FCFCFC"}
     >
-      <StatusTag/>
+      <AutoLayout
+        direction="horizontal"
+        verticalAlignItems="center"
+        spacing={16}
+      >
+        <StatusTag/>
+        <ChangeLog/>
+      </AutoLayout>
       <Input
         value={subject}
         placeholder="Design Review Subject"
@@ -304,7 +337,7 @@ function Widget() {
                     spacing={8}
                     width={"fill-parent"}
                   >
-                    <Input
+                    {/* <Input
                       value={issue.summary}
                       placeholder="Issue summary"
                       width={"fill-parent"}
@@ -312,6 +345,20 @@ function Widget() {
                       fontWeight="bold"
                       fill={"#FF0000"}
                       onTextEditEnd={(e) => updateIssue(issue.id, "summary", e.characters)}
+                    /> */}
+                    <Input
+                      value={issue.summary}
+                      placeholder="Issue summary"
+                      width={"fill-parent"}
+                      fontSize={16} 
+                      fontWeight="bold"
+                      fill={errorState[issue.id] ? "#FF0000" : "#000000"} // Если ошибка — красный текст
+                      onTextEditEnd={(e) => {
+                        updateIssue(issue.id, "summary", e.characters);
+                        if (e.characters.trim() !== "") {
+                          setErrorState((prev) => ({ ...prev, [issue.id]: false })); // Убираем ошибку
+                        }
+                      }}
                     />
                     <Input
                       value={issue.description}
@@ -375,10 +422,9 @@ function Widget() {
                     <Text
                       fontSize={16} 
                       fontWeight="bold"
-                      fill={"#FF0000"}
                       width={"fill-parent"}
                     >
-                      {issue.summary}
+                      🤡 {issue.summary}
                     </Text>
                     {issue.description !== "" && (
                       <Text
@@ -422,7 +468,6 @@ function Widget() {
           )}
         </AutoLayout>
       ))}
-      <ChangeLog children="Conducted"/>
       <Text
         fontSize={24}
         onClick={
