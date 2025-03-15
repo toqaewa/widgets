@@ -124,6 +124,75 @@ function Widget() {
     }
   })
 
+  function addIssue() {
+    const newIssue: Issue = {
+      id: Date.now().toString(),
+      summary: "",
+      description: "",
+      env: env,
+      link: "",
+    };
+    setIssues([newIssue, ...issues]);
+    setEditingIssueId(newIssue.id);
+  }
+
+  function updateIssue(id: string, field: keyof Issue, value: string) {
+    setIssues(issues.map(issue => issue.id === id ? { ...issue, [field]: value } : issue));
+  }
+
+  function removeIssue(id: string) {
+    setIssues(issues.filter(issue => issue.id !== id))
+  }
+
+  function startEditingIssue(id: string) {
+    setEditingIssueId(id);
+  }
+
+  function saveIssue(id: string) {
+    setEditingIssueId(null);
+  }
+
+  const openLink = (url: string) => {
+    return new Promise<void>((resolve) => {
+      figma.showUI(__html__, { visible: false });
+  
+      // Отправляем URL во внешний интерфейс
+      figma.ui.postMessage({ type: "open-link", url });
+  
+      // Ожидаем сообщение от интерфейса о том, что ссылка открыта
+      figma.ui.onmessage = (message) => {
+        if (message.type === "link-opened") {
+          resolve(); // Разрешаем Promise после открытия ссылки
+        }
+      };
+    });
+  };
+
+  const LinkButton = ({
+    onClick,
+    children,
+  }: {
+    onClick: () => void;
+    children: string;
+  }) => (
+    <AutoLayout
+      padding={{ top: 2, right: 8, bottom: 2, left: 2 }}
+      spacing={4}
+      cornerRadius={4}
+      hoverStyle={{ fill: [{ type: "solid", color: { r: 0.2, g: 0.6, b: 1, a: 0.2 } }] }}
+      onClick={onClick}
+    >
+      <Text fontSize={14}>🔗</Text>
+      <Text 
+        fontSize={14} 
+        fontWeight="bold" 
+        fill={[{ type: "solid", color: { r: 0.2, g: 0.6, b: 1, a: 1 } }]}
+      >
+        {children}
+      </Text>
+    </AutoLayout>
+  );
+
   usePropertyMenu(
     [
       {
@@ -153,10 +222,20 @@ function Widget() {
         })),
         selectedOption: env,
       },
+      {
+        itemType: "action",
+        propertyName: "add-issue",
+        tooltip: "Add Issue",
+        icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 5V19M5 12H19" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        `,
+      },
     ],
     ({ propertyName, propertyValue }) => {
       if (propertyName === "status" && propertyValue) handleStatusChange(propertyValue);
       if (propertyName === "env" && propertyValue) setEnv(propertyValue);
+      if (propertyName ==="add-issue") addIssue();
     }
   );
 
@@ -176,6 +255,109 @@ function Widget() {
         fontWeight="bold"
         onTextEditEnd={(e) => setSubject(e.characters)}
       />
+      {issues.map((issue) => (
+        <AutoLayout
+          key={issue.id}
+          direction="vertical"
+          spacing={8}
+          width={"hug-contents"}
+        >
+          {/* <AutoLayout>
+            <Text>Issue</Text>
+            <Text>{env}</Text>
+            <Text>Design</Text>
+          </AutoLayout> */}
+          {editingIssueId === issue.id ? (
+            <>
+              <AutoLayout
+                direction="horizontal"
+                spacing={8}
+                width={"hug-contents"}
+              >
+                <AutoLayout
+                  direction="vertical"
+                  spacing={8}
+                  width={"hug-contents"}
+                >
+                <Input
+                  value={issue.summary}
+                  placeholder="Issue summary"
+                  width={320}
+                  fontSize={16} 
+                  fontWeight="bold"
+                  fill={"#FF0000"}
+                  onTextEditEnd={(e) => updateIssue(issue.id, "summary", e.characters)}
+                />
+                <Input
+                  value={issue.description}
+                  placeholder="Issue description"
+                  width={320}
+                  fontSize={12} 
+                  onTextEditEnd={(e) => updateIssue(issue.id, "description", e.characters)}
+                />
+                </AutoLayout>
+                <AutoLayout>
+                  <Text>MEDIA</Text>
+                </AutoLayout>
+                <AutoLayout
+                  direction="vertical"
+                  spacing={8}
+                  width={"hug-contents"}
+                >
+                  <Text>MEDIA</Text>
+                  <Input
+                    value={issue.link}
+                    placeholder="Issue link"
+                    width={320}
+                    fontSize={12} 
+                    onTextEditEnd={(e) => updateIssue(issue.id, "link", e.characters)}
+                  />
+                </AutoLayout>
+              </AutoLayout>
+            </>
+          ) : (
+            <>
+              <AutoLayout
+                direction="horizontal"
+                spacing={8}
+                width={"hug-contents"}
+              >
+                <AutoLayout
+                  direction="vertical"
+                  spacing={8}
+                  width={"hug-contents"}
+                >
+                  <Text
+                    width={320}
+                    fontSize={16} 
+                    fontWeight="bold"
+                    fill={"#FF0000"}
+                  >
+                    {issue.summary}
+                  </Text>
+                  <Text
+                    width={320}
+                    fontSize={12}
+                  >
+                    {issue.description}
+                  </Text>
+                </AutoLayout>
+                <AutoLayout>
+                  <Text>MEDIA</Text>
+                </AutoLayout>
+                <AutoLayout
+                  direction="vertical"
+                  spacing={8}
+                  width={"hug-contents"}
+                >
+                  <Text>MEDIA</Text>
+                  <LinkButton onClick={() => openLink(issue.link)}>{issue.link}</LinkButton>
+                </AutoLayout>
+              </AutoLayout>
+            </>
+          )}
+        </AutoLayout>
+      ))}
       <ChangeLog children="Conducted"/>
       <Text>{env}</Text>
       <Text
