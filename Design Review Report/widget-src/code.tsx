@@ -193,6 +193,26 @@ function Widget() {
     </AutoLayout>
   );
 
+  const IconButton = ({
+    onClick,
+    children,
+  }: {
+    onClick: () => void;
+    children: string;
+  }) => (
+    <AutoLayout
+      padding={4}
+      cornerRadius={4}
+      fill={[ ]}
+      hoverStyle={{ fill: [{ type: "solid", color: { r: 0.2, g: 0.6, b: 1, a: 0.2 } }] }}
+      onClick={onClick}
+    >
+      <Text fontSize={12} fill={"#777"} hoverStyle={{ fill: [{ type: "solid", color: { r: 0.2, g: 0.2, b: 0.2, a: 1 } }] }}>
+        {children}
+      </Text>
+    </AutoLayout>
+  );
+
   usePropertyMenu(
     [
       {
@@ -244,7 +264,9 @@ function Widget() {
       direction="vertical"
       padding={16}
       spacing={16}
+      cornerRadius={16}
       width={"hug-contents"}
+      fill={"#FCFCFC"}
     >
       <StatusTag/>
       <Input
@@ -260,13 +282,11 @@ function Widget() {
           key={issue.id}
           direction="vertical"
           spacing={8}
+          padding={12}
+          cornerRadius={12}
           width={"hug-contents"}
+          fill={"#F2F2F2"}
         >
-          {/* <AutoLayout>
-            <Text>Issue</Text>
-            <Text>{env}</Text>
-            <Text>Design</Text>
-          </AutoLayout> */}
           {editingIssueId === issue.id ? (
             <>
               <AutoLayout
@@ -279,40 +299,60 @@ function Widget() {
                   spacing={8}
                   width={"hug-contents"}
                 >
-                <Input
-                  value={issue.summary}
-                  placeholder="Issue summary"
-                  width={320}
-                  fontSize={16} 
-                  fontWeight="bold"
-                  fill={"#FF0000"}
-                  onTextEditEnd={(e) => updateIssue(issue.id, "summary", e.characters)}
-                />
-                <Input
-                  value={issue.description}
-                  placeholder="Issue description"
-                  width={320}
-                  fontSize={12} 
-                  onTextEditEnd={(e) => updateIssue(issue.id, "description", e.characters)}
-                />
+                  <AutoLayout
+                    direction="vertical"
+                    spacing={8}
+                    width={"fill-parent"}
+                  >
+                    <Input
+                      value={issue.summary}
+                      placeholder="Issue summary"
+                      width={"fill-parent"}
+                      fontSize={16} 
+                      fontWeight="bold"
+                      fill={"#FF0000"}
+                      onTextEditEnd={(e) => updateIssue(issue.id, "summary", e.characters)}
+                    />
+                    <Input
+                      value={issue.description}
+                      placeholder="Issue description"
+                      width={"fill-parent"}
+                      fontSize={12} 
+                      onTextEditEnd={(e) => updateIssue(issue.id, "description", e.characters)}
+                    />
+                    <Input
+                      value={issue.link}
+                      placeholder="Design link"
+                      width={"fill-parent"}
+                      fontSize={12} 
+                      onTextEditEnd={(e) => updateIssue(issue.id, "link", e.characters)}
+                    />
+                  </AutoLayout>
+                  <AutoLayout
+                    direction="horizontal"
+                    spacing={8}
+                    width={"hug-contents"}
+                  >
+                    <AutoLayout
+                      direction="vertical"
+                      spacing={8}
+                      width={320}
+                    >
+                      <Text>{env}</Text>
+                      <Text>MEDIA</Text>
+                    </AutoLayout>
+                    <AutoLayout
+                      direction="vertical"
+                      spacing={8}
+                      width={320}
+                    >
+                      <Text>Design</Text>
+                      <Text>MEDIA</Text>
+                    </AutoLayout>
+                  </AutoLayout>
                 </AutoLayout>
-                <AutoLayout>
-                  <Text>MEDIA</Text>
-                </AutoLayout>
-                <AutoLayout
-                  direction="vertical"
-                  spacing={8}
-                  width={"hug-contents"}
-                >
-                  <Text>MEDIA</Text>
-                  <Input
-                    value={issue.link}
-                    placeholder="Issue link"
-                    width={320}
-                    fontSize={12} 
-                    onTextEditEnd={(e) => updateIssue(issue.id, "link", e.characters)}
-                  />
-                </AutoLayout>
+                <IconButton onClick={() => saveIssue(issue.id)}>💾</IconButton>
+                <IconButton onClick={() => removeIssue(issue.id)}>🗑️</IconButton>
               </AutoLayout>
             </>
           ) : (
@@ -327,39 +367,62 @@ function Widget() {
                   spacing={8}
                   width={"hug-contents"}
                 >
-                  <Text
-                    width={320}
-                    fontSize={16} 
-                    fontWeight="bold"
-                    fill={"#FF0000"}
+                  <AutoLayout
+                    direction="vertical"
+                    spacing={8}
+                    width={"fill-parent"}
                   >
-                    {issue.summary}
-                  </Text>
-                  <Text
-                    width={320}
-                    fontSize={12}
+                    <Text
+                      fontSize={16} 
+                      fontWeight="bold"
+                      fill={"#FF0000"}
+                      width={"fill-parent"}
+                    >
+                      {issue.summary}
+                    </Text>
+                    {issue.description !== "" && (
+                      <Text
+                        fontSize={12}
+                        width={"fill-parent"}
+                      >
+                        {issue.description}
+                      </Text>
+                    )}
+                    {issue.link !== "" && (
+                      <LinkButton onClick={() => openLink(issue.link)}>Link to Design</LinkButton>
+                    )}
+                  </AutoLayout>
+                  <AutoLayout
+                    direction="horizontal"
+                    spacing={8}
+                    width={"hug-contents"}
                   >
-                    {issue.description}
-                  </Text>
+                    <AutoLayout
+                      direction="vertical"
+                      spacing={8}
+                      width={320}
+                    >
+                      <Text>{env}</Text>
+                      <Text>MEDIA</Text>
+                    </AutoLayout>
+                    <AutoLayout
+                      direction="vertical"
+                      spacing={8}
+                      width={320}
+                    >
+                      <Text>Design</Text>
+                      <Text>MEDIA</Text>
+                    </AutoLayout>
+                  </AutoLayout>
                 </AutoLayout>
-                <AutoLayout>
-                  <Text>MEDIA</Text>
-                </AutoLayout>
-                <AutoLayout
-                  direction="vertical"
-                  spacing={8}
-                  width={"hug-contents"}
-                >
-                  <Text>MEDIA</Text>
-                  <LinkButton onClick={() => openLink(issue.link)}>{issue.link}</LinkButton>
-                </AutoLayout>
+                <IconButton onClick={() => startEditingIssue(issue.id)}>📝</IconButton>
+                <IconButton onClick={() => removeIssue(issue.id)}>🗑️</IconButton>
               </AutoLayout>
             </>
           )}
         </AutoLayout>
       ))}
       <ChangeLog children="Conducted"/>
-      <Text>{env}</Text>
       <Text
         fontSize={24}
         onClick={
