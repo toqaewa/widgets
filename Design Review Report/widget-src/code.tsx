@@ -68,8 +68,6 @@ function Widget() {
 
   const [errorState, setErrorState] = useSyncedState<Record<string, boolean>>("errorState", {});
 
-  const [issueImages, setIssueImages] = useSyncedState<Record<string, string>>("issueImages", {});
-
   useEffect(() => {
     if (!conductedAt) {
       setConductedAt(new Date().toISOString());
@@ -162,10 +160,6 @@ function Widget() {
     setEditingIssueId(id);
   }
 
-  // function saveIssue(id: string) {
-  //   setEditingIssueId(null);
-  // }
-
   function saveIssue(id: string) {
     const issue = issues.find((issue) => issue.id === id);
     if (!issue) return;
@@ -240,45 +234,6 @@ function Widget() {
       </Text>
     </AutoLayout>
   );
-
-  async function uploadImage(issueId: string) {
-    return new Promise<void>((resolve) => {
-      figma.showUI(__html__, { width: 300, height: 200 });
-  
-      figma.ui.postMessage({ type: "request-upload", issueId });
-  
-      figma.ui.onmessage = async (msg) => {
-        if (msg.type === "upload-image") {
-          const { issueId, bytes } = msg;
-  
-          // Создаём изображение в Figma
-          const newImage = await figma.createImage(bytes);
-          const newHash = newImage.hash;
-  
-          // Обновляем состояние
-          setIssueImages((prev) => ({ ...prev, [issueId]: newHash }));
-  
-          resolve(); // Завершаем Promise, чтобы избежать завершения виджета
-        }
-      };
-    });
-  }
-  
-  
-  useEffect(() => {
-    figma.ui.onmessage = async (msg) => {
-      if (msg.type === "upload-image") {
-        const { issueId, bytes } = msg;
-  
-        // Создаём изображение в Figma
-        const newImage = await figma.createImage(bytes);
-        const newHash = newImage.hash;
-  
-        // Обновляем состояние
-        setIssueImages((prev) => ({ ...prev, [issueId]: newHash }));
-      }
-    };
-  });
 
   usePropertyMenu(
     [
@@ -418,11 +373,6 @@ function Widget() {
                       width={320}
                     >
                       <Text>{env}</Text>
-                      {issueImages[issue.id] ? (
-                        <Image src={issueImages[issue.id]} width={100} height={100} cornerRadius={8} />
-                      ) : (
-                        <IconButton onClick={() => uploadImage(issue.id)}>📷 Upload Image</IconButton>
-                      )}
                     </AutoLayout>
                     <AutoLayout
                       direction="vertical"
@@ -430,11 +380,6 @@ function Widget() {
                       width={320}
                     >
                       <Text>Design</Text>
-                      {issueImages[issue.id] ? (
-                        <Image src={issueImages[issue.id]} width={100} height={100} cornerRadius={8} />
-                      ) : (
-                        <IconButton onClick={() => uploadImage(issue.id)}>📷 Upload Image</IconButton>
-                      )}
                     </AutoLayout>
                   </AutoLayout>
                 </AutoLayout>
@@ -508,17 +453,6 @@ function Widget() {
           )}
         </AutoLayout>
       ))}
-      <Text
-        fontSize={24}
-        onClick={
-          () =>
-            new Promise((resolve) => {
-              figma.showUI(__html__)
-            })
-        }
-      >
-        Open IFrame
-      </Text>
     </AutoLayout>
   )
 }
