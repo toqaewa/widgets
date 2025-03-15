@@ -68,6 +68,8 @@ function Widget() {
 
   const [errorState, setErrorState] = useSyncedState<Record<string, boolean>>("errorState", {});
 
+  const [issueImages, setIssueImages] = useSyncedState<Record<string, string>>("issueImages", {});
+
   useEffect(() => {
     if (!conductedAt) {
       setConductedAt(new Date().toISOString());
@@ -239,6 +241,45 @@ function Widget() {
     </AutoLayout>
   );
 
+  async function uploadImage(issueId: string) {
+    return new Promise<void>((resolve) => {
+      figma.showUI(__html__, { width: 300, height: 200 });
+  
+      figma.ui.postMessage({ type: "request-upload", issueId });
+  
+      figma.ui.onmessage = async (msg) => {
+        if (msg.type === "upload-image") {
+          const { issueId, bytes } = msg;
+  
+          // Создаём изображение в Figma
+          const newImage = await figma.createImage(bytes);
+          const newHash = newImage.hash;
+  
+          // Обновляем состояние
+          setIssueImages((prev) => ({ ...prev, [issueId]: newHash }));
+  
+          resolve(); // Завершаем Promise, чтобы избежать завершения виджета
+        }
+      };
+    });
+  }
+  
+  
+  useEffect(() => {
+    figma.ui.onmessage = async (msg) => {
+      if (msg.type === "upload-image") {
+        const { issueId, bytes } = msg;
+  
+        // Создаём изображение в Figma
+        const newImage = await figma.createImage(bytes);
+        const newHash = newImage.hash;
+  
+        // Обновляем состояние
+        setIssueImages((prev) => ({ ...prev, [issueId]: newHash }));
+      }
+    };
+  });
+
   usePropertyMenu(
     [
       {
@@ -337,15 +378,6 @@ function Widget() {
                     spacing={8}
                     width={"fill-parent"}
                   >
-                    {/* <Input
-                      value={issue.summary}
-                      placeholder="Issue summary"
-                      width={"fill-parent"}
-                      fontSize={16} 
-                      fontWeight="bold"
-                      fill={"#FF0000"}
-                      onTextEditEnd={(e) => updateIssue(issue.id, "summary", e.characters)}
-                    /> */}
                     <Input
                       value={issue.summary}
                       placeholder="Issue summary"
@@ -386,7 +418,11 @@ function Widget() {
                       width={320}
                     >
                       <Text>{env}</Text>
-                      <Text>MEDIA</Text>
+                      {issueImages[issue.id] ? (
+                        <Image src={issueImages[issue.id]} width={100} height={100} cornerRadius={8} />
+                      ) : (
+                        <IconButton onClick={() => uploadImage(issue.id)}>📷 Upload Image</IconButton>
+                      )}
                     </AutoLayout>
                     <AutoLayout
                       direction="vertical"
@@ -394,7 +430,11 @@ function Widget() {
                       width={320}
                     >
                       <Text>Design</Text>
-                      <Text>MEDIA</Text>
+                      {issueImages[issue.id] ? (
+                        <Image src={issueImages[issue.id]} width={100} height={100} cornerRadius={8} />
+                      ) : (
+                        <IconButton onClick={() => uploadImage(issue.id)}>📷 Upload Image</IconButton>
+                      )}
                     </AutoLayout>
                   </AutoLayout>
                 </AutoLayout>

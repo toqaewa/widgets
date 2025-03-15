@@ -1,4 +1,4 @@
-<button id="showToastButton">Say hello</button>
+<!-- <button id="showToastButton">Say hello</button>
 <button id="closeButton">Close</button>
 
 <script>
@@ -11,4 +11,19 @@
   closeButton.onclick = () => {
     parent.postMessage({ pluginMessage: { type: "close" } }, "*");
   };
+</script> -->
+
+<input type="file" id="fileInput" />
+<script>
+  document.getElementById("fileInput").addEventListener("change", async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function () {
+      const uint8Array = new Uint8Array(reader.result);
+      parent.postMessage({ pluginMessage: { type: "upload-image", bytes: uint8Array } }, "*");
+    };
+    reader.readAsArrayBuffer(file);
+  });
 </script>
