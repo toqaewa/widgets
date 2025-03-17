@@ -25,6 +25,7 @@ type Issue = {
   description: string,
   env: string,
   link: string,
+  isResolved: boolean,
 };
 
 const formatDate = (isoString: string) => {
@@ -136,6 +137,11 @@ function Widget() {
     }
   })
 
+  function validateUrl(url: string): boolean {
+    const pattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+    return pattern.test(url);
+  }
+
   function addIssue() {
     const newIssue: Issue = {
       id: Date.now().toString(),
@@ -143,6 +149,7 @@ function Widget() {
       description: "",
       env: env,
       link: "",
+      isResolved: false,
     };
     setIssues([newIssue, ...issues]);
     setEditingIssueId(newIssue.id);
@@ -172,6 +179,10 @@ function Widget() {
   
     setErrorState((prev) => ({ ...prev, [id]: false }));
     setEditingIssueId(null);
+  }
+
+  function markAsResolved(id: string) {
+    setIssues(issues.map(issue => issue.id === id ? { ...issue, isResolved: !issue.isResolved } : issue));
   }
 
   const openLink = (url: string) => {
@@ -218,9 +229,11 @@ function Widget() {
   const IconButton = ({
     onClick,
     children,
+    tooltip,
   }: {
     onClick: () => void;
     children: string;
+    tooltip?: string;
   }) => (
     <AutoLayout
       padding={4}
@@ -228,6 +241,7 @@ function Widget() {
       fill={[ ]}
       hoverStyle={{ fill: [{ type: "solid", color: { r: 0.2, g: 0.6, b: 1, a: 0.2 } }] }}
       onClick={onClick}
+      tooltip={tooltip}
     >
       <Text fontSize={12} fill={"#777"} hoverStyle={{ fill: [{ type: "solid", color: { r: 0.2, g: 0.2, b: 0.2, a: 1 } }] }}>
         {children}
@@ -314,7 +328,7 @@ function Widget() {
           padding={12}
           cornerRadius={12}
           width={"hug-contents"}
-          fill={"#F2F2F2"}
+          fill={!issue.isResolved ? ("#F3DADA") : ("#DDEDE3")}
         >
           {editingIssueId === issue.id ? (
             <>
@@ -333,34 +347,60 @@ function Widget() {
                     spacing={8}
                     width={"fill-parent"}
                   >
-                    <Input
-                      value={issue.summary}
-                      placeholder="Issue summary"
+                    <AutoLayout
+                      stroke={errorState[issue.id] ? "#FF0000" : "#ddd"}
+                      padding={{vertical: 4, horizontal: 8}}
                       width={"fill-parent"}
-                      fontSize={16} 
-                      fontWeight="bold"
-                      fill={errorState[issue.id] ? "#FF0000" : "#000000"} // Если ошибка — красный текст
-                      onTextEditEnd={(e) => {
-                        updateIssue(issue.id, "summary", e.characters);
-                        if (e.characters.trim() !== "") {
-                          setErrorState((prev) => ({ ...prev, [issue.id]: false })); // Убираем ошибку
-                        }
-                      }}
-                    />
-                    <Input
-                      value={issue.description}
-                      placeholder="Issue description"
+                      cornerRadius={8}
+                      fill={"#FDFDFD"}
+                    >
+                      <Input
+                        value={issue.summary}
+                        placeholder="Issue summary"
+                        width={"fill-parent"}
+                        fontSize={16} 
+                        fontWeight="bold"
+                        fill={errorState[issue.id] ? "#FF0000" : "#000000"} // Если ошибка — красный текст
+                        onTextEditEnd={(e) => {
+                          updateIssue(issue.id, "summary", e.characters);
+                          if (e.characters.trim() !== "") {
+                            setErrorState((prev) => ({ ...prev, [issue.id]: false })); // Убираем ошибку
+                          }
+                        }}
+                      />
+                    </AutoLayout>
+                    <AutoLayout
+                      stroke={"#ddd"}
+                      padding={{vertical: 4, horizontal: 8}}
                       width={"fill-parent"}
-                      fontSize={12} 
-                      onTextEditEnd={(e) => updateIssue(issue.id, "description", e.characters)}
-                    />
-                    <Input
-                      value={issue.link}
-                      placeholder="Design link"
+                      cornerRadius={8}
+                      fill={"#FDFDFD"}
+                    >
+                      <Input
+                        value={issue.description}
+                        placeholder="Issue description"
+                        width={"fill-parent"}
+                        fontSize={12} 
+                        onTextEditEnd={(e) => updateIssue(issue.id, "description", e.characters)}
+                        inputBehavior="multiline"
+                      />
+                    </AutoLayout>
+                    <AutoLayout
+                      stroke={!validateUrl(issue.link) ? "#FF0000" : "#ddd"}
+                      padding={{vertical: 4, horizontal: 8}}
                       width={"fill-parent"}
-                      fontSize={12} 
-                      onTextEditEnd={(e) => updateIssue(issue.id, "link", e.characters)}
-                    />
+                      cornerRadius={8}
+                      fill={"#FDFDFD"}
+                    >
+                      <Input
+                        value={issue.link}
+                        placeholder="Design link"
+                        width={"fill-parent"}
+                        fontSize={12} 
+                        onTextEditEnd={(e) => updateIssue(issue.id, "link", e.characters)}
+                        fill={!validateUrl(issue.link) ? "#FF0000" : "#000000"}
+                      />
+                    </AutoLayout>
                   </AutoLayout>
                   <AutoLayout
                     direction="horizontal"
@@ -404,13 +444,30 @@ function Widget() {
                     spacing={8}
                     width={"fill-parent"}
                   >
-                    <Text
-                      fontSize={16} 
-                      fontWeight="bold"
-                      width={"fill-parent"}
+                    <AutoLayout
+                      direction="horizontal"
+                      spacing={8}
+                      verticalAlignItems="center"
                     >
-                      🤡 {issue.summary}
-                    </Text>
+                      {!issue.isResolved ? (
+                        <IconButton
+                          onClick={() => markAsResolved(issue.id)}
+                          tooltip="Mark as resolved"
+                        >Unresolved</IconButton>
+                      ) : (
+                        <IconButton
+                          onClick={() => markAsResolved(issue.id)}
+                          tooltip="Mark as unresolved"
+                        >Resolved</IconButton>
+                      )}
+                      <Text
+                        fontSize={16} 
+                        fontWeight="bold"
+                        width={"fill-parent"}
+                      >
+                        {issue.summary}
+                      </Text>
+                    </AutoLayout>
                     {issue.description !== "" && (
                       <Text
                         fontSize={12}
