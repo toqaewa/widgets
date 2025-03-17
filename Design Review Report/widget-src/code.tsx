@@ -315,7 +315,7 @@ function Widget() {
       <Input
         value={subject}
         placeholder="Design Review Subject"
-        width={320}
+        width={"fill-parent"}
         fontSize={24} 
         fontWeight="bold"
         onTextEditEnd={(e) => setSubject(e.characters)}
