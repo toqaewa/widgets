@@ -23,7 +23,11 @@ function Checklist() {
   const [title, setTitle] = useSyncedState("title", "");
   const [description, setDescription] = useSyncedState("description", "");
   const [showDescription, setShowDescription] = useSyncedState("showDescription", true);
-  const [items, setItems] = useSyncedState("items", []);
+
+  const [showProgressBar, setShowProgressBar] = useSyncedState("showProgressBar", false)
+
+  const completedCount = checklistData.items.filter(item => item.completed).length;
+  const totalCount = checklistData.items.length;
 
   const addItem = () => {
     setCheckList(prev => {
@@ -65,12 +69,51 @@ function Checklist() {
     });
   };
 
+  const ProgressBar = (
+    {
+      completed,
+      total,
+    }: {
+      completed: number;
+      total: number;
+    }
+  ) => (
+    <AutoLayout
+      direction="horizontal"
+      width={200}
+      height={24}
+      cornerRadius={4}
+      fill={"#E0E0E0"}
+    >
+      {completed > 0 && (
+        <AutoLayout
+          width={total > 0 ? (completed / total) * 200 : 0}
+          height={"fill-parent"}
+          fill={"#999"}
+        />
+      )}
+      <AutoLayout
+        direction="horizontal"
+        positioning="absolute"
+        verticalAlignItems="center"
+        height={24}
+        padding={{vertical: 2, horizontal: 6}}
+      >
+        {completed === total && completed > 0 ? (
+          <Text fontSize={12} fontWeight={"bold"} fill={"#333"}>☑️ {completed} of {total} complete</Text>
+        ) : (
+          <Text fontSize={12} fontWeight={"bold"}>{completed} of {total} complete</Text>
+        )}
+      </AutoLayout>
+    </AutoLayout>
+  );
+
   usePropertyMenu(
     [
       { 
         itemType: "action", 
         propertyName: "add", 
-        tooltip: "Добавить элемент", 
+        tooltip: "Add element", 
         icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M12 5V19M5 12H19" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -79,10 +122,20 @@ function Checklist() {
       {
         itemType: "toggle",
         propertyName: "toggleDescription",
-        tooltip: "Показывать описание",
+        tooltip: "Show description",
         isToggled: showDescription,
         icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M3 17.25V21H6.75L17.81 9.93L14.06 6.18L3 17.25ZM20.71 7.04L16.96 3.29L15.12 5.12L18.87 8.87L20.71 7.04Z" fill="white"/>
+        </svg>
+        `,
+      },
+      {
+        itemType: "toggle",
+        propertyName: "toggleProgressBar",
+        tooltip: "Show progress bar",
+        isToggled: showProgressBar,
+        icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2V6M12 18V22M18 2H6V6L12 12L6 18V22H18V18L12 12L18 6V2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         `,
       },
@@ -90,6 +143,7 @@ function Checklist() {
     ({ propertyName }) => {
       if (propertyName === "add") addItem();
       if (propertyName === "toggleDescription") setShowDescription(!showDescription);
+      if (propertyName === "toggleProgressBar") setShowProgressBar(!showProgressBar);
     }
   );
 
@@ -102,7 +156,13 @@ function Checklist() {
       cornerRadius={8}
       fill={[{ type: "solid", color: { r: 0.95, g: 0.95, b: 0.95, a: 1 } }]}
       stroke={[{ type: "solid", color: {r: 0.75, g: 0.75, b: 0.75, a: 1} }]}
-      >
+    >
+      {showProgressBar && (
+        <ProgressBar
+          completed={completedCount}
+          total={totalCount}
+        />
+      )}
       <Input
         value={title}
         placeholder="Название чеклиста"
