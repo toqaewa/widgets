@@ -1,35 +1,44 @@
-// This widget will open an Iframe window with buttons to show a toast message and close the window.
-
 const { widget } = figma
-const { useEffect, Text } = widget
+const { useEffect, usePropertyMenu, useSyncedState, Input, AutoLayout, Text } = widget
+
+const STATUSES = [
+  { name: "IN DESIGN", textColor: { r: 0, g: 0, b: 0, a: 1 }, fillColor: { r: 0, g: 0, b: 0, a: 1 } },
+  { name: "IN PRODUCTION", textColor: { r: 0, g: 0, b: 0, a: 1 }, fillColor: { r: 0, g: 0, b: 0, a: 1 } },
+  { name: "DEPRECATED", textColor: { r: 0, g: 0, b: 0, a: 1 }, fillColor: { r: 0, g: 0, b: 0, a: 1 } },
+  { name: "ARCHIVED", textColor: { r: 0, g: 0, b: 0, a: 1 }, fillColor: { r: 0, g: 0, b: 0, a: 1 } },
+]
+
+interface Link {
+  id: string;
+  text: string;
+  URL: string;
+}
+
+interface UseCase {
+  id: string;
+  name: string;
+  description?: string;
+  isWrapped: boolean;
+  links: Link[];
+}
 
 function Widget() {
-  useEffect(() => {
-    figma.ui.onmessage = (msg) => {
-      if (msg.type === 'showToast') {
-        figma.notify('Hello widget')
-      }
-      if (msg.type === 'close') {
-        figma.closePlugin()
-      }
-    }
-  })
+  const [componentName, setComponentName] = useSyncedState("componentName", "");
+
+  const [componentLink, setComponentLink] = useSyncedState("componentLink", "");
+
+  const [componentStatus, setComponentStatus] = useSyncedState("status", STATUSES[0].name);
+  const [statusTextColor, setStatusTextColor] = useSyncedState("statusTextColor", STATUSES[0].textColor);
+  const [statusFillColor, setStatusFillColor] = useSyncedState("statusFillColor", STATUSES[0].fillColor);
+
+  const [useCases, setUseCases] = useSyncedState<UseCase[]>("useCases", []);
+  const [editingUseCaseId, setEditingUseCaseId] = useSyncedState<string | null>("editingUseCaseId", null);
+
+  const [errorState, setErrorState] = useSyncedState<Record<string, boolean>>("errorState", {});
+
 
   return (
-    <Text
-      fontSize={24}
-      onClick={
-        // Use async callbacks or return a promise to keep the Iframe window
-        // opened. Resolving the promise, closing the Iframe window, or calling
-        // "figma.closePlugin()" will terminate the code.
-        () =>
-          new Promise((resolve) => {
-            figma.showUI(__html__)
-          })
-      }
-    >
-      Open IFrame
-    </Text>
+    <Text>Widget rendered</Text>
   )
 }
 
