@@ -185,24 +185,30 @@ function Checklist() {
           key={item.id} 
           direction="horizontal" 
           spacing={8} 
-          verticalAlignItems="center"
+          verticalAlignItems={"start"}
           width={420}
         >
           <AutoLayout
-            width={16}
-            height={16}
-            cornerRadius={4}
-            stroke="#777"
-            fill="#FFF"
-            onClick={() => toggleComplete(item.id)}
-            horizontalAlignItems="center"
-            verticalAlignItems="center"
+            width={"hug-contents"}
+            height={"hug-contents"}
+            padding={2}
           >
-            {item.completed && (
-              <Text fill="#777" fontSize={10} fontWeight="bold">
-                ✓
-              </Text>
-            )}
+            <AutoLayout
+              width={16}
+              height={16}
+              cornerRadius={4}
+              stroke="#777"
+              fill="#FFF"
+              onClick={() => toggleComplete(item.id)}
+              horizontalAlignItems="center"
+              verticalAlignItems="center"
+            >
+              {item.completed && (
+                <Text fill="#777" fontSize={10} fontWeight="bold">
+                  ✓
+                </Text>
+              )}
+            </AutoLayout>
           </AutoLayout>
           <Input
             value={item.text}
@@ -211,6 +217,8 @@ function Checklist() {
             textDecoration={item.completed ? "strikethrough" : "none"}
             fill={item.completed ? "#777" : "#000"} 
             width="fill-parent"
+            fontSize={16}
+            lineHeight={20}
           />
           <Text onClick={() => removeItem(item.id)}>-</Text>
       </AutoLayout>
