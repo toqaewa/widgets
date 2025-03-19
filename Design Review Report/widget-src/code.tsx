@@ -386,7 +386,7 @@ function Widget() {
                       />
                     </AutoLayout>
                     <AutoLayout
-                      stroke={!validateUrl(issue.link) ? "#FF0000" : "#ddd"}
+                      stroke={!validateUrl(issue.link) && issue.link !== "" ? "#FF0000" : "#ddd"}
                       padding={{vertical: 4, horizontal: 8}}
                       width={"fill-parent"}
                       cornerRadius={8}
@@ -398,7 +398,7 @@ function Widget() {
                         width={"fill-parent"}
                         fontSize={12} 
                         onTextEditEnd={(e) => updateIssue(issue.id, "link", e.characters)}
-                        fill={!validateUrl(issue.link) ? "#FF0000" : "#000000"}
+                        fill={!validateUrl(issue.link) && issue.link !== "" ? "#FF0000" : "#000000"}
                       />
                     </AutoLayout>
                   </AutoLayout>
