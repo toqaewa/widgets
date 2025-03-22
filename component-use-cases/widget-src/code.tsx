@@ -36,6 +36,9 @@ function Widget() {
 
   const [errorState, setErrorState] = useSyncedState<Record<string, boolean>>("errorState", {});
 
+  const [useCaseLinks, setUseCaseLinks] = useSyncedState<Link[]>("useCaseLinks", []);
+  const [editingUseCaseLinkId, setEditingUseCaseLinkId] = useSyncedState<string | null>("editingUseCaseLinkId", null);
+
   function addUseCase() {
     const newUseCase: UseCase = {
       id: Date.now().toString(),
@@ -46,69 +49,107 @@ function Widget() {
     };
     setUseCases([...useCases, newUseCase]);
     setEditingUseCaseId(newUseCase.id);
-
-    const [useCaseLinks, setUseCaseLinks] = useSyncedState<Link[]>("useCaseLinks", []);
-    const [editingUseCaseLinkId, setEditingUseCaseLinkId] = useSyncedState<string | null>("editingUseCaseLinkId", null);
-
-    function addUseCaseLink() {
-      const newUseCaseLink: Link = {
-        id: Date.now().toString(),
-        text: "",
-        URL: "",
-      };
-      setUseCaseLinks([newUseCaseLink, ...useCaseLinks]);
-      setEditingUseCaseLinkId(newUseCaseLink.id);
-    }
-    
-    function updateUseCaseLink(id: string, field: keyof Link, value: string) {
-      setUseCaseLinks(useCaseLinks.map(useCaseLink => useCaseLink.id === id ? { ...useCaseLink, [field]: value } : useCaseLink));
-    }
-
-    function removeUseCaseLink(id:string) {
-      setUseCaseLinks(useCaseLinks.filter(useCaseLink => useCaseLink.id !== id));
-    }
-
-    function startEditingUseCaseLink(id:string) {
-      setEditingUseCaseLinkId(id);
-    }
-
-    function saveUseCaseLink(id:string) {
-      const useCaseLink = useCaseLinks.find((useCaseLink) => useCaseLink.id === id);
-      if (!useCaseLink) return;
-
-      if (useCaseLink.URL.trim() === "") {
-        setErrorState((prev) => ({ ...prev, [id]: true }));
-        return;
-      }
-
-      setErrorState((prev) => ({ ...prev, [id]: false }));
-      setEditingUseCaseLinkId(null);
-    }
   }
 
   function updateUseCase(id: string, field: keyof UseCase, value: string) {
     setUseCases(useCases.map(useCase => useCase.id === id ? { ...useCase, [field]: value } : useCase));
   }
-
+  
+  const toggleIsWrapped = (id: string) => {
+    setUseCases(useCases.map(useCase => (useCase.id === id ? { ...useCase, isWrapped: !useCase.isWrapped } : useCase)));
+  };
+  
   function removeUseCase(id: string) {
     setUseCases(useCases.filter(useCase => useCase.id !== id))
   }
-
+  
   function startEditingUseCase(id: string) {
     setEditingUseCaseId(id);
   }
-
+  
   function saveUseCase(id: string) {
     const useCase = useCases.find((useCase) => useCase.id === id);
     if (!useCase) return;
-  
+    
     if (useCase.name.trim() === "") {
       setErrorState((prev) => ({ ...prev, [id]: true }));
       return;
     }
-  
+    
     setErrorState((prev) => ({ ...prev, [id]: false }));
     setEditingUseCaseId(null);
+  }
+
+  function addUseCaseLink(useCaseId: string) {
+    const newUseCaseLink: Link = {
+      id: `${useCaseId}-${Date.now().toString()}`,
+      text: "",
+      URL: "",
+    };
+    console.log("Adding link:", newUseCaseLink);
+    // setUseCases(useCases.map(useCase => 
+    //   useCase.id === useCaseId ? { ...useCase, links: [...useCase.links, newUseCaseLink] } : useCase
+    // ));
+    setUseCases(useCases.map(useCase => {
+      if (useCase.id === useCaseId) {
+        const updatedUseCase = { ...useCase, links: [...useCase.links, newUseCaseLink] };
+        console.log("Updated useCase:", updatedUseCase);
+        return updatedUseCase;
+      }
+      return useCase;
+    }));
+    setEditingUseCaseLinkId(newUseCaseLink.id);
+  }
+
+  function updateUseCaseLink(useCaseId: string, linkId: string, field: keyof Link, value: string) {
+    setUseCases(useCases.map(useCase => 
+      useCase.id === useCaseId ? { 
+        ...useCase, 
+        links: useCase.links.map(link => 
+          link.id === linkId ? { ...link, [field]: value } : link
+        )
+      } : useCase
+    ));
+  }
+
+  function removeUseCaseLink(useCaseId: string, linkId: string) {
+    setUseCases(useCases.map(useCase => 
+      useCase.id === useCaseId ? { 
+        ...useCase, 
+        links: useCase.links.filter(link => link.id !== linkId)
+      } : useCase
+    ));
+  }
+
+  function startEditingUseCaseLink(id:string) {
+    setEditingUseCaseLinkId(id);
+  }
+
+  function saveUseCaseLink(useCaseId: string, linkId: string) {
+    setUseCases(useCases.map(useCase => {
+      if (useCase.id === useCaseId) {
+        // Находим ссылку, которую нужно сохранить
+        const updatedLinks = useCase.links.map(link => {
+          if (link.id === linkId) {
+            // Проверяем, что URL не пустой
+            if (link.URL.trim() === "") {
+              setErrorState((prev) => ({ ...prev, [linkId]: true }));
+              return link; // Возвращаем ссылку без изменений, если URL пустой
+            }
+            setErrorState((prev) => ({ ...prev, [linkId]: false }));
+            return link; // Возвращаем обновленную ссылку
+          }
+          return link;
+        });
+  
+        // Возвращаем обновленный UseCase
+        return { ...useCase, links: updatedLinks };
+      }
+      return useCase;
+    }));
+  
+    // Сбрасываем редактирование
+    setEditingUseCaseLinkId(null);
   }
 
   function handleStatusChange(propertyName: string) {
@@ -125,6 +166,20 @@ function Widget() {
     const pattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
     return pattern.test(url);
   }
+
+  function openLink(url: string): Promise<void> {
+    return new Promise<void>((resolve) => {
+      figma.showUI(__html__, { visible: false });
+  
+      figma.ui.postMessage({ type: "open-link", url });
+  
+      figma.ui.onmessage = (message) => {
+        if (message.type === "link-opened") {
+          resolve();
+        }
+      };
+    });
+  };
 
   const IconButton = ({
     onClick,
@@ -156,22 +211,15 @@ function Widget() {
     onClick: () => void;
     children: string;
   }) => (
-    <AutoLayout
-      padding={{ top: 2, right: 8, bottom: 2, left: 2 }}
-      spacing={4}
-      cornerRadius={4}
-      hoverStyle={{ fill: [{ type: "solid", color: { r: 0.2, g: 0.6, b: 1, a: 0.2 } }] }}
+    <Text 
+      fontSize={14} 
+      fontWeight="bold" 
+      fill={[{ type: "solid", color: { r: 0.2, g: 0.6, b: 1, a: 1 } }]}
+      hoverStyle={{opacity: 0.7}}
       onClick={onClick}
     >
-      <Text fontSize={14}>🔗</Text>
-      <Text 
-        fontSize={14} 
-        fontWeight="bold" 
-        fill={[{ type: "solid", color: { r: 0.2, g: 0.6, b: 1, a: 1 } }]}
-      >
-        {children}
-      </Text>
-    </AutoLayout>
+      {children}
+    </Text>
   );
 
   const StatusTag = ({
@@ -195,6 +243,54 @@ function Widget() {
     </AutoLayout>
   );
 
+  const Checkbox = ({
+    onChange,
+    checked,
+    label,
+  } : {
+    onChange: () => void;
+    checked: boolean;
+    label?: string;
+  }) => (
+    <AutoLayout
+      onClick={onChange}
+      direction="horizontal" 
+      spacing={4} 
+      verticalAlignItems={"start"}
+      width={"hug-contents"}
+      hoverStyle={{opacity: 0.7}}
+    >
+      <AutoLayout
+        width={"hug-contents"}
+        height={"hug-contents"}
+        padding={2}
+      >
+        <AutoLayout
+          width={16}
+          height={16}
+          cornerRadius={4}
+          stroke="#777"
+          fill="#FFF"
+          horizontalAlignItems="center"
+          verticalAlignItems="center"
+        >
+          {checked && (
+            <Text fill="#777" fontSize={10} fontWeight="bold">
+              ✓
+            </Text>
+          )}
+        </AutoLayout>
+      </AutoLayout>
+      <Text
+        fontSize={14}
+        fill={"#333"}
+        lineHeight={20}
+      >
+        {label}
+      </Text>
+    </AutoLayout>
+    )
+
   usePropertyMenu(
     [
       {
@@ -211,7 +307,7 @@ function Widget() {
       },
     ],
     ({ propertyName, propertyValue }) => {
-      if (propertyName === "status" && propertyValue)  handleStatusChange(propertyValue);
+      if (propertyName === "status" && propertyValue) handleStatusChange(propertyValue);
     }
   )
 
@@ -243,8 +339,98 @@ function Widget() {
         placeholder="Component link"
         onTextEditEnd={(e) => setComponentLink(e.characters)}
         inputBehavior="multiline"
-        width="fill-parent"
+        width={"fill-parent"}
       />
+      <AutoLayout
+        direction={"horizontal"}
+      >
+        <Text width={200}>Use Case</Text>
+        <Text width={200}>Usage description</Text>
+        <Text width={200}>Is wrapped?</Text>
+        <Text width={200}>Design Links</Text>
+      </AutoLayout>
+      {useCases.map((useCase) => (
+        <AutoLayout
+          direction={"horizontal"}
+        >
+          <Input
+            value={useCase.name}
+            onTextEditEnd={(e) => updateUseCase(useCase.id, "name", e.characters)}
+            placeholder="Use Case"
+            width={200}
+          />
+          <Input
+            value={useCase.description}
+            onTextEditEnd={(e) => updateUseCase(useCase.id, "description", e.characters)}
+            placeholder="Usage description"
+            width={200}
+          />
+          <AutoLayout
+            width={200}
+          >
+            <Checkbox
+              onChange={() => toggleIsWrapped(useCase.id)}
+              checked={useCase.isWrapped}
+              // label="isWrapped"
+            />
+          </AutoLayout>
+          <AutoLayout
+            direction="vertical"
+            spacing={8}
+            width={400}
+          >
+            {useCase.links.map((link) => (
+              <AutoLayout
+                key={link.id}
+                direction="vertical"
+                spacing={8}
+                width={"fill-parent"}
+              >
+                {editingUseCaseLinkId === link.id ? (
+                  <>
+                    <AutoLayout
+                      direction="horizontal"
+                      verticalAlignItems="center"
+                      spacing={8}
+                      width={"fill-parent"}
+                    >
+                      <Input
+                        value={link.text} 
+                        placeholder="Link text"
+                        onTextEditEnd={(e) => updateUseCaseLink(useCase.id, link.id, "text", e.characters)}
+                        width={"fill-parent"}
+                      />
+                      <Input
+                        value={link.URL} 
+                        placeholder="URL"
+                        onTextEditEnd={(e) => updateUseCaseLink(useCase.id, link.id, "URL", e.characters)}
+                        width={"fill-parent"}
+                      />
+                      <Text onClick={() => saveUseCaseLink(useCase.id, link.id)}>✓</Text>
+                      <Text onClick={() => removeUseCaseLink(useCase.id, link.id)}>×</Text>
+                    </AutoLayout>
+                  </>
+                ) : (
+                  <>
+                    <AutoLayout
+                      direction="horizontal"
+                      verticalAlignItems="center"
+                      spacing={4}
+                      width={"fill-parent"}
+                    >
+                      <LinkButton onClick={() => openLink(link.URL)}>{link.text}</LinkButton>
+                      <Text onClick={() => removeUseCaseLink(useCase.id, link.id)}>×</Text>
+                    </AutoLayout>
+                  </>
+                )}
+              </AutoLayout>
+              ))}
+            <IconButton onClick={() => addUseCaseLink(useCase.id)}>+ Add link</IconButton>
+          </AutoLayout>
+          <IconButton onClick={() => removeUseCase(useCase.id)}>🗑️</IconButton>
+        </AutoLayout>
+      ))}
+      <IconButton onClick={() => addUseCase()}>+ Add use case</IconButton>
     </AutoLayout>
   )
 }
