@@ -32,11 +32,9 @@ function Widget() {
   const [statusFillColor, setStatusFillColor] = useSyncedState("statusFillColor", STATUSES[0].fillColor);
 
   const [useCases, setUseCases] = useSyncedState<UseCase[]>("useCases", []);
-  const [editingUseCaseId, setEditingUseCaseId] = useSyncedState<string | null>("editingUseCaseId", null);
 
   const [errorState, setErrorState] = useSyncedState<Record<string, boolean>>("errorState", {});
 
-  const [useCaseLinks, setUseCaseLinks] = useSyncedState<Link[]>("useCaseLinks", []);
   const [editingUseCaseLinkId, setEditingUseCaseLinkId] = useSyncedState<string | null>("editingUseCaseLinkId", null);
 
   function addUseCase() {
@@ -48,7 +46,6 @@ function Widget() {
       links: [],
     };
     setUseCases([...useCases, newUseCase]);
-    setEditingUseCaseId(newUseCase.id);
   }
 
   function updateUseCase(id: string, field: keyof UseCase, value: string) {
@@ -62,24 +59,7 @@ function Widget() {
   function removeUseCase(id: string) {
     setUseCases(useCases.filter(useCase => useCase.id !== id))
   }
-  
-  function startEditingUseCase(id: string) {
-    setEditingUseCaseId(id);
-  }
-  
-  function saveUseCase(id: string) {
-    const useCase = useCases.find((useCase) => useCase.id === id);
-    if (!useCase) return;
     
-    if (useCase.name.trim() === "") {
-      setErrorState((prev) => ({ ...prev, [id]: true }));
-      return;
-    }
-    
-    setErrorState((prev) => ({ ...prev, [id]: false }));
-    setEditingUseCaseId(null);
-  }
-
   function addUseCaseLink(useCaseId: string) {
     const newUseCaseLink: Link = {
       id: `${useCaseId}-${Date.now().toString()}`,
@@ -119,10 +99,6 @@ function Widget() {
         links: useCase.links.filter(link => link.id !== linkId)
       } : useCase
     ));
-  }
-
-  function startEditingUseCaseLink(id:string) {
-    setEditingUseCaseLinkId(id);
   }
 
   function saveUseCaseLink(useCaseId: string, linkId: string) {
