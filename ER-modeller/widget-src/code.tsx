@@ -411,7 +411,7 @@ usePropertyMenu(
           fill={[{ type: "solid", color: { r: 1, g: 1, b: 1, a: 0.4 } }]}
           cornerRadius={8}
           width={"fill-parent"}
-          verticalAlignItems="center"
+          verticalAlignItems={"start"}
         >
           <Input
             placeholder="Название"
