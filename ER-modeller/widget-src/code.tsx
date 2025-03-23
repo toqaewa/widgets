@@ -18,14 +18,14 @@ type Link ={
 }
 
 const COLOR_PALETTE = [
-  { name: "grey", value: "#F2F2F2" }, // Серый
-  { name: "blue", value: "#91C4FA" }, // Синий
-  { name: "green", value: "#91DEAB" }, // Зеленый UIColor(red: 0.57, green: 0.87, blue: 0.67, alpha: 1)
-  { name: "orange", value: "#FAC491" }, // Оранжевый UIColor(red: 0.98, green: 0.77, blue: 0.57, alpha: 1)
-  { name: "red", value: "#FA9191" }, // Красный UIColor(red: 0.98, green: 0.57, blue: 0.57, alpha: 1)
-  { name: "purple", value: "#C491FA" }, // Фиолетовый UIColor(red: 0.77, green: 0.57, blue: 0.98, alpha: 1)
-  { name: "pink", value: "#FAABDE" }, // Розовый UIColor(red: 0.98, green: 0.67, blue: 0.87, alpha: 1)
-  { name: "turquoise", value: "#91DEDE" }, // Бирюзовый UIColor(red: 0.57, green: 0.87, blue: 0.87, alpha: 1)
+  { name: "grey", value: "#F2F2F2" },
+  { name: "blue", value: "#91C4FA" },
+  { name: "green", value: "#91DEAB" },
+  { name: "orange", value: "#FAC491" },
+  { name: "red", value: "#FA9191" },
+  { name: "purple", value: "#C491FA" },
+  { name: "pink", value: "#FAABDE" },
+  { name: "turquoise", value: "#91DEDE" },
 ];
 
 const SIZES = [
@@ -141,7 +141,6 @@ function ERModeller() {
     </AutoLayout>
   );
 
-  // кнопка-иконка чтобы удалять
   const IconButton = ({
     onClick,
     children,
@@ -155,8 +154,11 @@ function ERModeller() {
       fill={[ ]}
       hoverStyle={{ fill: [{ type: "solid", color: { r: 0.2, g: 0.6, b: 1, a: 0.2 } }] }}
       onClick={onClick}
+      minWidth={20}
+      verticalAlignItems={"center"}
+      horizontalAlignItems={"center"}
     >
-      <Text fontSize={12} fill={"#777"} hoverStyle={{ fill: [{ type: "solid", color: { r: 0.2, g: 0.2, b: 0.2, a: 1 } }] }}>
+      <Text horizontalAlignText={"center"} verticalAlignText={"center"} fontSize={12} lineHeight={16} fill={"#777"} hoverStyle={{ fill: [{ type: "solid", color: { r: 0.2, g: 0.2, b: 0.2, a: 1 } }] }}>
         {children}
       </Text>
     </AutoLayout>
@@ -171,17 +173,27 @@ function ERModeller() {
     children: string;
   }) => (
     <AutoLayout
-      padding={{ top: 2, right: 8, bottom: 2, left: 2 }}
-      spacing={4}
+      padding={2}
+      spacing={2}
       cornerRadius={4}
-      hoverStyle={{ fill: [{ type: "solid", color: { r: 0.2, g: 0.6, b: 1, a: 0.2 } }] }}
+      hoverStyle={{opacity: 0.8}}
       onClick={onClick}
+      maxWidth={width-32-20}
     >
-      <Text fontSize={14}>🔗</Text>
+      <Text
+        fontSize={14}
+        fontWeight="bold" 
+        fill={"#1C4ED8"}
+      >
+        ↗︎
+      </Text>
       <Text 
         fontSize={14} 
         fontWeight="bold" 
-        fill={[{ type: "solid", color: { r: 0.2, g: 0.6, b: 1, a: 1 } }]}
+        fill={"#1C4ED8"}
+        textDecoration={"underline"}
+        truncate={1}
+        width={"fill-parent"}
       >
         {children}
       </Text>
@@ -336,6 +348,7 @@ usePropertyMenu(
                     placeholder="Текст ссылки"
                     onTextEditEnd={(e) => updateLink(link.id, "text", e.characters)}
                     width={"fill-parent"}
+                    inputBehavior={"truncate"}
                   />
                 </AutoLayout>
                 <AutoLayout
@@ -353,10 +366,11 @@ usePropertyMenu(
                     placeholder="Ссылка"
                     onTextEditEnd={(e) => updateLink(link.id, "URL", e.characters)}
                     width={"fill-parent"}
+                    inputBehavior={"truncate"}
                   />
                 </AutoLayout>
-                <IconButton onClick={() => saveLink(link.id)}>💾</IconButton>
-                <IconButton onClick={() => removeLink(link.id)}>🗑️</IconButton>
+                <IconButton onClick={() => saveLink(link.id)}>✓</IconButton>
+                <IconButton onClick={() => removeLink(link.id)}>×</IconButton>
               </AutoLayout>
             </>
           ) : (
@@ -364,12 +378,11 @@ usePropertyMenu(
               <AutoLayout
                 direction="horizontal"
                 verticalAlignItems="center"
-                spacing={4}
+                spacing={0}
                 width={"fill-parent"}
               >
                 <LinkButton onClick={() => openLink(link.URL)}>{link.text}</LinkButton>
-                <IconButton onClick={() => startEditingLink(link.id)}>✍︎</IconButton>
-                <IconButton onClick={() => removeLink(link.id)}>🗑️</IconButton>
+                <IconButton onClick={() => removeLink(link.id)}>×</IconButton>
               </AutoLayout>
             </>
           )}
