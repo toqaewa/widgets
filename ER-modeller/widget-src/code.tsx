@@ -19,13 +19,13 @@ type Link ={
 
 const COLOR_PALETTE = [
   { name: "grey", value: "#F2F2F2" },
-  { name: "blue", value: "#91C4FA" },
-  { name: "green", value: "#91DEAB" },
-  { name: "orange", value: "#FAC491" },
-  { name: "red", value: "#FA9191" },
-  { name: "purple", value: "#C491FA" },
-  { name: "pink", value: "#FAABDE" },
-  { name: "turquoise", value: "#91DEDE" },
+  { name: "blue", value: "#CBE0F5" },
+  { name: "green", value: "#CBEAD6" },
+  { name: "orange", value: "#F5E0CB" },
+  { name: "red", value: "#F5CBCB" },
+  { name: "purple", value: "#E0CBF5" },
+  { name: "pink", value: "#F5D6EA" },
+  { name: "turquoise", value: "#CBEAEA" },
 ];
 
 const SIZES = [
