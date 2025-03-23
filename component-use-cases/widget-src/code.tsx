@@ -195,10 +195,19 @@ function Widget() {
       cornerRadius={4}
       fill={[ ]}
       hoverStyle={{ fill: [{ type: "solid", color: { r: 0.2, g: 0.6, b: 1, a: 0.2 } }] }}
+      minWidth={20}
+      verticalAlignItems={"center"}
+      horizontalAlignItems={"center"}
       onClick={onClick}
       tooltip={tooltip}
     >
-      <Text fontSize={12} fill={"#777"} hoverStyle={{ fill: [{ type: "solid", color: { r: 0.2, g: 0.2, b: 0.2, a: 1 } }] }}>
+      <Text 
+        verticalAlignText={"center"}
+        horizontalAlignText={"center"}
+        fontSize={12} 
+        fill={"#777"} 
+        hoverStyle={{ fill: [{ type: "solid", color: { r: 0.2, g: 0.2, b: 0.2, a: 1 } }] }}
+      >
         {children}
       </Text>
     </AutoLayout>
@@ -211,15 +220,32 @@ function Widget() {
     onClick: () => void;
     children: string;
   }) => (
-    <Text 
-      fontSize={14} 
-      fontWeight="bold" 
-      fill={[{ type: "solid", color: { r: 0.2, g: 0.6, b: 1, a: 1 } }]}
-      hoverStyle={{opacity: 0.7}}
+    <AutoLayout
+      padding={2}
+      spacing={2}
+      cornerRadius={4}
+      hoverStyle={{opacity: 0.8}}
       onClick={onClick}
+      maxWidth={320}
     >
-      {children}
-    </Text>
+      <Text
+        fontSize={14}
+        fontWeight="bold" 
+        fill={"#1C4ED8"}
+      >
+        ↗︎
+      </Text>
+      <Text 
+        fontSize={14} 
+        fontWeight="bold" 
+        fill={"#1C4ED8"}
+        textDecoration={"underline"}
+        truncate={1}
+        width={"fill-parent"}
+      >
+        {children}
+      </Text>
+    </AutoLayout>
   );
 
   const StatusTag = ({
@@ -343,15 +369,21 @@ function Widget() {
       />
       <AutoLayout
         direction={"horizontal"}
+        spacing={12}
+        padding={8}
       >
         <Text width={200}>Use Case</Text>
-        <Text width={200}>Usage description</Text>
-        <Text width={200}>Is wrapped?</Text>
-        <Text width={200}>Design Links</Text>
+        <Text width={320}>Usage description</Text>
+        <Text width={32} tooltip="Is wrapped?" horizontalAlignText="center">{`</>`}</Text>
+        <Text width={320}>Design Links</Text>
       </AutoLayout>
       {useCases.map((useCase) => (
         <AutoLayout
           direction={"horizontal"}
+          spacing={12}
+          padding={8}
+          cornerRadius={8}
+          fill={"#F5F5F5"}
         >
           <Input
             value={useCase.name}
@@ -363,10 +395,12 @@ function Widget() {
             value={useCase.description}
             onTextEditEnd={(e) => updateUseCase(useCase.id, "description", e.characters)}
             placeholder="Usage description"
-            width={200}
+            width={320}
+            inputBehavior={"multiline"}
           />
           <AutoLayout
-            width={200}
+            width={32}
+            horizontalAlignItems={"center"}
           >
             <Checkbox
               onChange={() => toggleIsWrapped(useCase.id)}
@@ -377,7 +411,7 @@ function Widget() {
           <AutoLayout
             direction="vertical"
             spacing={8}
-            width={400}
+            width={320}
           >
             {useCase.links.map((link) => (
               <AutoLayout
@@ -391,7 +425,7 @@ function Widget() {
                     <AutoLayout
                       direction="horizontal"
                       verticalAlignItems="center"
-                      spacing={8}
+                      spacing={0}
                       width={"fill-parent"}
                     >
                       <Input
@@ -406,8 +440,8 @@ function Widget() {
                         onTextEditEnd={(e) => updateUseCaseLink(useCase.id, link.id, "URL", e.characters)}
                         width={"fill-parent"}
                       />
-                      <Text onClick={() => saveUseCaseLink(useCase.id, link.id)}>✓</Text>
-                      <Text onClick={() => removeUseCaseLink(useCase.id, link.id)}>×</Text>
+                      <IconButton onClick={() => saveUseCaseLink(useCase.id, link.id)}>✓</IconButton>
+                      <IconButton onClick={() => removeUseCaseLink(useCase.id, link.id)}>×</IconButton>
                     </AutoLayout>
                   </>
                 ) : (
@@ -415,11 +449,11 @@ function Widget() {
                     <AutoLayout
                       direction="horizontal"
                       verticalAlignItems="center"
-                      spacing={4}
+                      spacing={0}
                       width={"fill-parent"}
                     >
                       <LinkButton onClick={() => openLink(link.URL)}>{link.text}</LinkButton>
-                      <Text onClick={() => removeUseCaseLink(useCase.id, link.id)}>×</Text>
+                      <IconButton onClick={() => removeUseCaseLink(useCase.id, link.id)}>×</IconButton>
                     </AutoLayout>
                   </>
                 )}
