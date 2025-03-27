@@ -104,27 +104,21 @@ function Widget() {
   function saveUseCaseLink(useCaseId: string, linkId: string) {
     setUseCases(useCases.map(useCase => {
       if (useCase.id === useCaseId) {
-        // Находим ссылку, которую нужно сохранить
         const updatedLinks = useCase.links.map(link => {
           if (link.id === linkId) {
-            // Проверяем, что URL не пустой
-            if (link.URL.trim() === "") {
-              setErrorState((prev) => ({ ...prev, [linkId]: true }));
-              return link; // Возвращаем ссылку без изменений, если URL пустой
+            const isValidUrl = link.URL.trim() !== "" && validateUrl(link.URL);
+            setErrorState((prev) => ({ ...prev, [linkId]: !isValidUrl }));
+            if (!isValidUrl) {
+              return link;
             }
-            setErrorState((prev) => ({ ...prev, [linkId]: false }));
-            return link; // Возвращаем обновленную ссылку
+            return link;
           }
           return link;
         });
-  
-        // Возвращаем обновленный UseCase
         return { ...useCase, links: updatedLinks };
       }
       return useCase;
     }));
-  
-    // Сбрасываем редактирование
     setEditingUseCaseLinkId(null);
   }
 
@@ -144,9 +138,17 @@ function Widget() {
   }
 
   function openLink(url: string): Promise<void> {
-    return new Promise<void>((resolve) => {
-      figma.showUI(__html__, { visible: false });
+    return new Promise<void>((resolve, reject) => {
+      if (!validateUrl(url)) {
+        figma.notify("Invalid URL. Example: https://example.com", {
+          error: true,
+          timeout: 5000,
+        });
+        reject("Invalid URL");
+        return;
+      }
   
+      figma.showUI(__html__, { visible: false });
       figma.ui.postMessage({ type: "open-link", url });
   
       figma.ui.onmessage = (message) => {
@@ -155,7 +157,7 @@ function Widget() {
         }
       };
     });
-  };
+  }
 
   const IconButton = ({
     onClick,
@@ -190,18 +192,24 @@ function Widget() {
   );
 
   const LinkButton = ({
-    onClick,
     children,
+    onClick,
   }: {
-    onClick: () => void;
     children: string;
+    onClick: () => Promise<void>;
   }) => (
     <AutoLayout
       padding={2}
       spacing={2}
       cornerRadius={4}
       hoverStyle={{opacity: 0.8}}
-      onClick={onClick}
+      onClick={async () => {
+        try {
+          await onClick();
+        } catch (err) {
+          console.error("Failed to open link:", err);
+        }
+      }}
       maxWidth={320}
     >
       <Text
