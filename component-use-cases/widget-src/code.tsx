@@ -192,45 +192,42 @@ function Widget() {
   );
 
   const LinkButton = ({
-    children,
     onClick,
-  }: {
-    children: string;
+    children,
+  } : {
     onClick: () => Promise<void>;
-  }) => (
-    <AutoLayout
-      padding={2}
-      spacing={2}
-      cornerRadius={4}
-      hoverStyle={{opacity: 0.8}}
-      onClick={async () => {
-        try {
-          await onClick();
-        } catch (err) {
-          console.error("Failed to open link:", err);
-        }
-      }}
-      maxWidth={320}
-    >
-      <Text
-        fontSize={14}
-        fontWeight="bold" 
-        fill={"#1C4ED8"}
+    children: string;
+  }) => {
+  
+    return (
+      <AutoLayout
+        padding={2}
+        spacing={2}
+        cornerRadius={4}
+        hoverStyle={{ opacity: 0.8 }}
+        onClick={async () => {
+          try {
+            await onClick();
+          } catch (err) {
+            console.error("Failed to open link:", err);
+          }
+        }}
+        maxWidth={320}
       >
-        ↗︎
-      </Text>
-      <Text 
-        fontSize={14} 
-        fontWeight="bold" 
-        fill={"#1C4ED8"}
-        textDecoration={"underline"}
-        truncate={1}
-        width={"fill-parent"}
-      >
-        {children}
-      </Text>
-    </AutoLayout>
-  );
+        <Text fontSize={14} fontWeight="bold" fill={"#1C4ED8"}>↗︎</Text>
+        <Text 
+          fontSize={14} 
+          fontWeight="bold" 
+          fill={"#1C4ED8"}
+          textDecoration={"underline"}
+          truncate={1}
+          width={"fill-parent"}
+        >
+          {children != "" ? children : "Design Link"}
+        </Text>
+      </AutoLayout>
+    );
+  };
 
   const StatusTag = ({
     fillColor,
