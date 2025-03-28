@@ -25,7 +25,8 @@ interface UseCase {
 function Widget() {
   const [componentName, setComponentName] = useSyncedState("componentName", "");
 
-  const [componentLink, setComponentLink] = useSyncedState("componentLink", "");
+  const [componentLink, setComponentLink] = useSyncedState<Link | null>("componentLink", null);
+  const [editingComponentLink, setEditingComponentLink] = useSyncedState("editingComponentLink",false);
 
   const [componentStatus, setComponentStatus] = useSyncedState("status", STATUSES[0].name);
   const [statusTextColor, setStatusTextColor] = useSyncedState("statusTextColor", STATUSES[0].textColor);
@@ -36,6 +37,19 @@ function Widget() {
   const [errorState, setErrorState] = useSyncedState<Record<string, boolean>>("errorState", {});
 
   const [editingUseCaseLinkId, setEditingUseCaseLinkId] = useSyncedState<string | null>("editingUseCaseLinkId", null);
+
+  const addComponentLink = () => {
+    setComponentLink({
+      id: "component-" + Date.now(),
+      text: "",
+      URL: ""
+    });
+    setEditingComponentLink(true);
+  };
+
+  const updateComponentLink = (field: keyof Link, value: string) => {
+    componentLink && setComponentLink({ ...componentLink, [field]: value });
+  };
 
   function addUseCase() {
     const newUseCase: UseCase = {
@@ -341,13 +355,38 @@ function Widget() {
         fontWeight="bold"
         onTextEditEnd={(e) => setComponentName(e.characters)}
       />
-      <Input
-        value={componentLink}
-        placeholder="Component link"
-        onTextEditEnd={(e) => setComponentLink(e.characters)}
-        inputBehavior="multiline"
-        width={"fill-parent"}
-      />
+      {!componentLink ? (
+        <IconButton onClick={addComponentLink}>+ Add Component Link</IconButton>
+      ) : (
+        <AutoLayout direction="horizontal" spacing={8} verticalAlignItems="center">
+          {editingComponentLink ? (
+            <>
+              <Input
+                value={componentLink.text}
+                placeholder="Link text"
+                onTextEditEnd={(e) => updateComponentLink("text", e.characters)}
+                width={200}
+              />
+              <Input
+                value={componentLink?.URL || ""}
+                placeholder="URL"
+                onTextEditEnd={(e) => updateComponentLink("URL", e.characters)}
+                width={200}
+              />
+              <IconButton onClick={() => setEditingComponentLink(false)}>
+                ✓
+              </IconButton>
+            </>
+          ) : (
+            <>
+              <LinkButton onClick={() => openLink(componentLink.URL)}>
+                {componentLink.text || "Component Link"}
+              </LinkButton>
+            </>
+          )}
+          <IconButton onClick={() => setComponentLink(null)}>×</IconButton>
+        </AutoLayout>
+      )}
       <AutoLayout
         direction={"horizontal"}
         spacing={12}
