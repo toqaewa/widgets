@@ -11,15 +11,40 @@ const STATUSES = [
 
 const GROUPS = [
   { name: "---", value: "" },
-  { name: "DESIGN TOKENS", value: "🧬 Design Tokens" },
-  { name: "PICTOGRAMS", value: "🖼️ Pictograms" },
-  { name: "LAYOUT", value: "🧩 Layout" },
-  { name: "DATA ENTRY", value: "🚪 Data Entry" },
-  { name: "DATA DISPLAY", value: "📺 Data Display" },
-  { name: "FEEDBACK", value: "💬 Feedback" },
-  { name: "NAVIGATION", value: "🧭 Navigation" },
-  { name: "DATA VIZ", value: "📈 Data Viz" },
+  { name: "DESIGN TOKENS", value: "Design Tokens" },
+  { name: "PICTOGRAMS", value: "Pictograms" },
+  { name: "LAYOUT", value: "Layout" },
+  { name: "DATA ENTRY", value: "Data Entry" },
+  { name: "DATA DISPLAY", value: "Data Display" },
+  { name: "FEEDBACK", value: "Feedback" },
+  { name: "NAVIGATION", value: "Navigation" },
+  { name: "DATA VIZ", value: "Data Viz" },
 ]
+
+const THEMES = [
+  {name: "LIGHT", bgColor:"#FCFCFC", primaryTextColor: "#000000", secondaryTextColor: "#777777", linkColor: "#1C4ED8", cardColor: "#F5F5F5", buttonHoverColor: "#3399FF33", buttonTextHoverColor: "#333333"},
+  {name: "DARK", bgColor:"#292929", primaryTextColor: "#FFFFFF", secondaryTextColor: "#777777", linkColor: "#1C4ED8", cardColor: "#2E2E2E", buttonHoverColor: "#3399FF33", buttonTextHoverColor: "#DDDDDD"}
+]
+
+const LIGHT_THEME_ICON = `
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 18C15.3137 18 18 15.3137 18 12C18 8.68629 15.3137 6 12 6C8.68629 6 6 8.68629 6 12C6 15.3137 8.68629 18 12 18Z" fill="#FFFFFF"/>
+    <path d="M11 1H13V4H11V1Z" fill="#FFFFFF"/>
+    <path d="M11 20H13V23H11V20Z" fill="#FFFFFF"/>
+    <path d="M3.51465 4.9289L4.92886 3.51468L7.05024 5.63606L5.63603 7.05027L3.51465 4.9289Z" fill="#FFFFFF"/>
+    <path d="M16.9497 18.364L18.364 16.9497L20.4853 19.0711L19.0711 20.4853L16.9497 18.364Z" fill="#FFFFFF"/>
+    <path d="M1 11H4V13H1V11Z" fill="#FFFFFF"/>
+    <path d="M20 11H23V13H20V11Z" fill="#FFFFFF"/>
+    <path d="M5.63603 16.9497L7.05024 18.364L4.92886 20.4853L3.51465 19.0711L5.63603 16.9497Z" fill="#FFFFFF"/>
+    <path d="M18.364 7.05027L16.9497 5.63606L19.0711 3.51468L20.4853 4.9289L18.364 7.05027Z" fill="#FFFFFF"/>
+  </svg>
+`;
+
+const DARK_THEME_ICON = `
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M2.83097 9.69289C2.83097 13.835 6.18884 17.1929 10.3309 17.1929C13.0716 17.1929 15.4714 15.722 16.7799 13.525C13.9405 14.4407 10.5769 13.9623 8.31913 11.7046C6.04346 9.4288 5.60514 6.07009 6.55597 3.24408C4.33926 4.56603 2.83097 6.99107 2.83097 9.69289ZM17.6559 11.3209C18.3439 10.9184 19.3793 11.374 19.1668 12.1421C18.0954 16.0156 14.5454 18.8596 10.3309 18.8596C5.26837 18.8596 1.16431 14.7555 1.16431 9.69289C1.16431 5.49059 4.11289 1.88201 8.01285 0.833291C8.78286 0.626221 9.22053 1.66145 8.80353 2.34109C7.25033 4.8721 7.36007 8.38839 9.49762 10.526C11.61 12.6385 15.1139 12.8085 17.6559 11.3209Z" fill="#FFFFFF"/>
+  </svg>
+`;
 
 interface Link {
   id: string;
@@ -46,6 +71,16 @@ function Widget() {
   const [componentStatus, setComponentStatus] = useSyncedState("status", STATUSES[0].name);
   const [statusTextColor, setStatusTextColor] = useSyncedState("statusTextColor", STATUSES[0].textColor);
   const [statusFillColor, setStatusFillColor] = useSyncedState("statusFillColor", STATUSES[0].fillColor);
+
+  const [theme, setTheme] = useSyncedState("theme", THEMES[0].name);
+  const [isDarkTheme, setIsDarkTheme] = useSyncedState("isDarkTheme", false);
+  const [bgColor, setBgColor] = useSyncedState("bgColor", THEMES[0].bgColor);
+  const [cardColor, setCardColor] = useSyncedState("cardColor", THEMES[0].cardColor);
+  const [primaryTextColor, setPrimaryTextColor] = useSyncedState("primaryTextColor", THEMES[0].primaryTextColor);
+  const [secondaryTextColor, setSecondaryTextColor] = useSyncedState("secondaryTextColor", THEMES[0].secondaryTextColor);
+  const [linkColor, setLinkColor] = useSyncedState("linkColor", THEMES[0].linkColor);
+  const [buttonHoverColor, setButtonHoverColor] = useSyncedState("buttonHoverColor", THEMES[0].buttonHoverColor);
+  const [buttonTextHoverColor, setButtonTextHoverColor] = useSyncedState("buttonTextHoverColor", THEMES[0].buttonTextHoverColor);
 
   const [useCases, setUseCases] = useSyncedState<UseCase[]>("useCases", []);
 
@@ -169,6 +204,19 @@ function Widget() {
     }
   }
 
+  function handleThemeChange(isDark: boolean) {
+    const selectedTheme = isDark ? THEMES[1] : THEMES[0]; // [1] - DARK, [0] - LIGHT
+    setIsDarkTheme(isDark);
+    setTheme(selectedTheme.name);
+    setBgColor(selectedTheme.bgColor);
+    setCardColor(selectedTheme.cardColor);
+    setPrimaryTextColor(selectedTheme.primaryTextColor);
+    setSecondaryTextColor(selectedTheme.secondaryTextColor);
+    setLinkColor(selectedTheme.linkColor);
+    setButtonHoverColor(selectedTheme.buttonHoverColor);
+    setButtonTextHoverColor(selectedTheme.buttonTextHoverColor);
+  }
+
   function validateUrl(url: string): boolean {
     const pattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
     return pattern.test(url);
@@ -196,7 +244,7 @@ function Widget() {
     });
   }
 
-  const IconButton = ({
+  const Button = ({
     onClick,
     children,
     tooltip,
@@ -209,7 +257,7 @@ function Widget() {
       padding={4}
       cornerRadius={4}
       fill={[ ]}
-      hoverStyle={{ fill: [{ type: "solid", color: { r: 0.2, g: 0.6, b: 1, a: 0.2 } }] }}
+      hoverStyle={{ fill: buttonHoverColor }}
       minWidth={20}
       verticalAlignItems={"center"}
       horizontalAlignItems={"center"}
@@ -220,8 +268,8 @@ function Widget() {
         verticalAlignText={"center"}
         horizontalAlignText={"center"}
         fontSize={12} 
-        fill={"#777"} 
-        hoverStyle={{ fill: [{ type: "solid", color: { r: 0.2, g: 0.2, b: 0.2, a: 1 } }] }}
+        fill={secondaryTextColor} 
+        hoverStyle={{ fill: buttonTextHoverColor }}
       >
         {children}
       </Text>
@@ -251,11 +299,11 @@ function Widget() {
         }}
         maxWidth={320}
       >
-        <Text fontSize={14} fontWeight="bold" fill={"#1C4ED8"}>↗︎</Text>
+        <Text fontSize={14} fontWeight="bold" fill={linkColor}>↗︎</Text>
         <Text 
           fontSize={14} 
           fontWeight="bold" 
-          fill={"#1C4ED8"}
+          fill={linkColor}
           textDecoration={"underline"}
           truncate={1}
           width={"fill-parent"}
@@ -298,7 +346,7 @@ function Widget() {
       padding={0}
       width={"hug-contents"}
     >
-      <Text fontSize={20} fill={"#777"}>{group} /</Text>
+      <Text fontSize={20} fill={secondaryTextColor}>{group} /</Text>
     </AutoLayout>
   );
 
@@ -328,13 +376,13 @@ function Widget() {
           width={16}
           height={16}
           cornerRadius={4}
-          stroke="#777"
-          fill="#FFF"
+          stroke={secondaryTextColor}
+          fill={bgColor}
           horizontalAlignItems="center"
           verticalAlignItems="center"
         >
           {checked && (
-            <Text fill="#777" fontSize={10} fontWeight="bold">
+            <Text fill={secondaryTextColor} fontSize={10} fontWeight="bold">
               ✓
             </Text>
           )}
@@ -342,7 +390,7 @@ function Widget() {
       </AutoLayout>
       <Text
         fontSize={14}
-        fill={"#333"}
+        fill={secondaryTextColor}
         lineHeight={20}
       >
         {label}
@@ -369,15 +417,15 @@ function Widget() {
         spacing={16}
         padding={24}
         cornerRadius={8}
-        fill={"#F5F5F5"}
+        fill={cardColor}
         width={"fill-parent"}
         horizontalAlignItems="center"
       >
         <FolderIcon/>
-        <Text fontSize={14} fill="#777" horizontalAlignText={"center"}>
+        <Text fontSize={14} fill={secondaryTextColor} horizontalAlignText={"center"}>
           No use cases yet. Click below to add your first use case.
         </Text>
-        <IconButton onClick={addUseCase}>+ Add First Use Case</IconButton>
+        <Button onClick={addUseCase}>+ Add First Use Case</Button>
       </AutoLayout>
     );
 
@@ -398,7 +446,7 @@ function Widget() {
       {
         itemType: "dropdown",
         propertyName: "group",
-        tooltip: "Component Group",
+        tooltip: "Component group",
         options: GROUPS.map((group) => ({
           option: group.name,
           label: group.name,
@@ -407,10 +455,18 @@ function Widget() {
           group.value === componentGroup
         )?.name || GROUPS[0].name
       },
+      {
+        itemType: "toggle",
+        propertyName: "theme",
+        tooltip: "Toggle theme",
+        icon: isDarkTheme ? DARK_THEME_ICON : LIGHT_THEME_ICON,
+        isToggled: isDarkTheme,
+      }
     ],
     ({ propertyName, propertyValue }) => {
       if (propertyName === "status" && propertyValue) handleStatusChange(propertyValue);
       if (propertyName === "group" && propertyValue) handleGroupChange(propertyValue);
+      if (propertyName === "theme") handleThemeChange(!isDarkTheme);
     }
   )
 
@@ -422,7 +478,7 @@ function Widget() {
       cornerRadius={16}
       width={"hug-contents"}
       minWidth={320}
-      fill={"#FCFCFC"}
+      fill={bgColor}
     >
       <StatusTag
         fillColor={statusFillColor}
@@ -444,10 +500,11 @@ function Widget() {
           fontSize={20} 
           fontWeight={"bold"}
           onTextEditEnd={(e) => setComponentName(e.characters)}
+          fill={primaryTextColor}
         />
       </AutoLayout>
       {!componentLink ? (
-        <IconButton onClick={addComponentLink}>+ Add Component Link</IconButton>
+        <Button onClick={addComponentLink}>+ Add Component Link</Button>
       ) : (
         <AutoLayout direction="horizontal" spacing={0} verticalAlignItems="center">
           {editingComponentLink ? (
@@ -457,16 +514,18 @@ function Widget() {
                 placeholder="Link text"
                 onTextEditEnd={(e) => updateComponentLink("text", e.characters)}
                 width={200}
+                fill={primaryTextColor}
               />
               <Input
                 value={componentLink?.URL || ""}
                 placeholder="URL"
                 onTextEditEnd={(e) => updateComponentLink("URL", e.characters)}
                 width={200}
+                fill={primaryTextColor}
               />
-              <IconButton onClick={() => setEditingComponentLink(false)}>
+              <Button onClick={() => setEditingComponentLink(false)}>
                 ✓
-              </IconButton>
+              </Button>
             </>
           ) : (
             <>
@@ -475,7 +534,7 @@ function Widget() {
               </LinkButton>
             </>
           )}
-          <IconButton onClick={() => setComponentLink(null)}>×</IconButton>
+          <Button onClick={() => setComponentLink(null)}>×</Button>
         </AutoLayout>
       )}
       <AutoLayout
@@ -483,10 +542,10 @@ function Widget() {
         spacing={12}
         padding={8}
       >
-        <Text width={200} fill={"#777"}>Use Case</Text>
-        <Text width={320} fill={"#777"}>Usage description</Text>
-        <Text width={32} fill={"#777"} tooltip="Is wrapped?" horizontalAlignText="center">{`</>`}</Text>
-        <Text width={320} fill={"#777"}>Design Links</Text>
+        <Text width={200} fill={secondaryTextColor}>Use Case</Text>
+        <Text width={320} fill={secondaryTextColor}>Usage description</Text>
+        <Text width={32} fill={secondaryTextColor} tooltip="Is wrapped?" horizontalAlignText="center">{`</>`}</Text>
+        <Text width={320} fill={secondaryTextColor}>Design Links</Text>
       </AutoLayout>
       {useCases.length === 0 ? (
         <EmptyState/>
@@ -497,13 +556,14 @@ function Widget() {
             spacing={12}
             padding={8}
             cornerRadius={8}
-            fill={"#F5F5F5"}
+            fill={cardColor}
           >
             <Input
               value={useCase.name}
               onTextEditEnd={(e) => updateUseCase(useCase.id, "name", e.characters)}
               placeholder="Use Case"
               width={200}
+              fill={primaryTextColor}
             />
             <Input
               value={useCase.description}
@@ -511,6 +571,7 @@ function Widget() {
               placeholder="Usage description"
               width={320}
               inputBehavior={"multiline"}
+              fill={primaryTextColor}
             />
             <AutoLayout
               width={32}
@@ -547,15 +608,17 @@ function Widget() {
                           placeholder="Link text"
                           onTextEditEnd={(e) => updateUseCaseLink(useCase.id, link.id, "text", e.characters)}
                           width={"fill-parent"}
+                          fill={primaryTextColor}
                         />
                         <Input
                           value={link.URL} 
                           placeholder="URL"
                           onTextEditEnd={(e) => updateUseCaseLink(useCase.id, link.id, "URL", e.characters)}
                           width={"fill-parent"}
+                          fill={primaryTextColor}
                         />
-                        <IconButton onClick={() => saveUseCaseLink(useCase.id, link.id)}>✓</IconButton>
-                        <IconButton onClick={() => removeUseCaseLink(useCase.id, link.id)}>×</IconButton>
+                        <Button onClick={() => saveUseCaseLink(useCase.id, link.id)}>✓</Button>
+                        <Button onClick={() => removeUseCaseLink(useCase.id, link.id)}>×</Button>
                       </AutoLayout>
                     </>
                   ) : (
@@ -567,20 +630,20 @@ function Widget() {
                         width={"fill-parent"}
                       >
                         <LinkButton onClick={() => openLink(link.URL)}>{link.text}</LinkButton>
-                        <IconButton onClick={() => removeUseCaseLink(useCase.id, link.id)}>×</IconButton>
+                        <Button onClick={() => removeUseCaseLink(useCase.id, link.id)}>×</Button>
                       </AutoLayout>
                     </>
                   )}
                 </AutoLayout>
                 ))}
-              <IconButton onClick={() => addUseCaseLink(useCase.id)}>+ Add link</IconButton>
+              <Button onClick={() => addUseCaseLink(useCase.id)}>+ Add link</Button>
             </AutoLayout>
-            <IconButton onClick={() => removeUseCase(useCase.id)}>🗑️</IconButton>
+            <Button onClick={() => removeUseCase(useCase.id)}>🗑️</Button>
           </AutoLayout>
         ))
       )}
       {useCases.length !== 0 &&
-        <IconButton onClick={() => addUseCase()}>+ Add use case</IconButton>
+        <Button onClick={() => addUseCase()}>+ Add use case</Button>
       }
       {/* <IconButton onClick={() => addUseCase()}>+ Add use case</IconButton> */}
     </AutoLayout>
