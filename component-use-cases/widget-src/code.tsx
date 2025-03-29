@@ -8,6 +8,18 @@ const STATUSES = [
   { name: "ARCHIVED", textColor: "#606060", fillColor: "#BFBFBF" },
 ]
 
+const GROUPS = [
+  { name: "---", value: "" },
+  { name: "DESIGN TOKENS", value: "🧬 Design Tokens" },
+  { name: "PICTOGRAMS", value: "🖼️ Pictograms" },
+  { name: "LAYOUT", value: "🧩 Layout" },
+  { name: "DATA ENTRY", value: "🚪 Data Entry" },
+  { name: "DATA DISPLAY", value: "📺 Data Display" },
+  { name: "FEEDBACK", value: "💬 Feedback" },
+  { name: "NAVIGATION", value: "🧭 Navigation" },
+  { name: "DATA VIZ", value: "📈 Data Viz" },
+]
+
 interface Link {
   id: string;
   text: string;
@@ -24,6 +36,8 @@ interface UseCase {
 
 function Widget() {
   const [componentName, setComponentName] = useSyncedState("componentName", "");
+
+  const [componentGroup, setComponentGroup] = useSyncedState("group", GROUPS[0].value);
 
   const [componentLink, setComponentLink] = useSyncedState<Link | null>("componentLink", null);
   const [editingComponentLink, setEditingComponentLink] = useSyncedState("editingComponentLink",false);
@@ -146,6 +160,14 @@ function Widget() {
     }
   }
 
+  function handleGroupChange(propertyName: string) {
+    const selectedGroup = GROUPS.find((group) => group.name === propertyName);
+
+    if (selectedGroup) {
+        setComponentGroup(selectedGroup.value);
+    }
+  }
+
   function validateUrl(url: string): boolean {
     const pattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
     return pattern.test(url);
@@ -264,6 +286,21 @@ function Widget() {
     </AutoLayout>
   );
 
+  const ComponentGroup = ({
+    group,
+  } : {
+    group: string;
+  }) => (
+    <AutoLayout
+      direction="horizontal"
+      spacing={4}
+      padding={0}
+      width={"hug-contents"}
+    >
+      <Text fontSize={20} fill={"#777"}>{group} /</Text>
+    </AutoLayout>
+  );
+
   const Checkbox = ({
     onChange,
     checked,
@@ -357,9 +394,22 @@ function Widget() {
           status.fillColor === statusFillColor && statusTextColor === statusTextColor
         )?.name || STATUSES[0].name
       },
+      {
+        itemType: "dropdown",
+        propertyName: "group",
+        tooltip: "Component Group",
+        options: GROUPS.map((group) => ({
+          option: group.name,
+          label: group.name,
+        })),
+        selectedOption: GROUPS.find((group) =>
+          group.value === componentGroup
+        )?.name || GROUPS[0].name
+      },
     ],
     ({ propertyName, propertyValue }) => {
       if (propertyName === "status" && propertyValue) handleStatusChange(propertyValue);
+      if (propertyName === "group" && propertyValue) handleGroupChange(propertyValue);
     }
   )
 
@@ -378,14 +428,23 @@ function Widget() {
         textColor={statusTextColor}
         label={componentStatus}
       />
-      <Input
-        value={componentName}
-        placeholder="Component name"
-        width="fill-parent"
-        fontSize={24} 
-        fontWeight="bold"
-        onTextEditEnd={(e) => setComponentName(e.characters)}
-      />
+      <AutoLayout
+        direction={"horizontal"}
+        spacing={4}
+        padding={0}
+        verticalAlignItems={"center"}
+        width={"fill-parent"}
+      >
+        {componentGroup !== "" && <ComponentGroup group={componentGroup}/>}
+        <Input
+          value={componentName}
+          placeholder="Component name"
+          width={"fill-parent"}
+          fontSize={20} 
+          fontWeight={"bold"}
+          onTextEditEnd={(e) => setComponentName(e.characters)}
+        />
+      </AutoLayout>
       {!componentLink ? (
         <IconButton onClick={addComponentLink}>+ Add Component Link</IconButton>
       ) : (
