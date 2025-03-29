@@ -1,5 +1,5 @@
 const { widget } = figma
-const { useEffect, usePropertyMenu, useSyncedState, Input, AutoLayout, Text } = widget
+const { useEffect, usePropertyMenu, useSyncedState, Input, AutoLayout, Text, SVG } = widget
 
 const STATUSES = [
   { name: "IN DESIGN", textColor: "#49627D", fillColor: "#91C4FA" },
@@ -312,6 +312,37 @@ function Widget() {
     </AutoLayout>
     )
 
+    const FolderIcon = () => (
+      <SVG
+        src={`
+          <svg width="800" height="490" viewBox="0 0 800 490" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M792.719 119.336C792.683 119.287 792.662 119.235 792.621 119.185L705.728 11.0029C704.752 9.78919 703.649 8.74337 702.475 7.80838C698.735 3.37235 693.203 0.49292 686.949 0.49292H113.051C106.792 0.49292 101.27 3.36889 97.5285 7.80838C96.3546 8.74337 95.2499 9.7788 94.2647 11.0029L7.38299 119.185C7.34317 119.235 7.32412 119.287 7.2843 119.336C2.86558 123.078 0 128.592 0 134.831V469.126C0 480.38 9.12485 489.507 20.3794 489.507H779.622C790.877 489.507 800.002 480.38 800.002 469.126V134.831C800.003 128.592 797.136 123.078 792.719 119.336ZM707.333 78.0819L736.549 114.451H707.333V78.0819ZM666.573 41.2535V114.45H513.97C509.617 114.45 505.39 115.843 501.886 118.42L400.011 193.391L298.116 118.41C294.613 115.843 290.383 114.45 286.034 114.45H133.429V41.2535H666.573ZM92.6735 114.451H63.4584L92.6735 78.0819V114.451ZM759.246 448.746H40.7588V155.21H279.349L387.931 235.114C395.116 240.388 404.908 240.399 412.092 235.105L520.651 155.208H759.246V448.746Z" fill="#777"/>
+          </svg>
+        `}
+        width={80}
+        height={49}
+        opacity={0.5}
+      />
+    );
+
+    const EmptyState = () => (
+      <AutoLayout
+        direction="vertical"
+        spacing={16}
+        padding={24}
+        cornerRadius={8}
+        fill={"#F5F5F5"}
+        width={"fill-parent"}
+        horizontalAlignItems="center"
+      >
+        <FolderIcon/>
+        <Text fontSize={14} fill="#777" horizontalAlignText={"center"}>
+          No use cases yet. Click below to add your first use case.
+        </Text>
+        <IconButton onClick={addUseCase}>+ Add First Use Case</IconButton>
+      </AutoLayout>
+    );
+
   usePropertyMenu(
     [
       {
@@ -358,7 +389,7 @@ function Widget() {
       {!componentLink ? (
         <IconButton onClick={addComponentLink}>+ Add Component Link</IconButton>
       ) : (
-        <AutoLayout direction="horizontal" spacing={8} verticalAlignItems="center">
+        <AutoLayout direction="horizontal" spacing={0} verticalAlignItems="center">
           {editingComponentLink ? (
             <>
               <Input
@@ -392,99 +423,106 @@ function Widget() {
         spacing={12}
         padding={8}
       >
-        <Text width={200}>Use Case</Text>
-        <Text width={320}>Usage description</Text>
-        <Text width={32} tooltip="Is wrapped?" horizontalAlignText="center">{`</>`}</Text>
-        <Text width={320}>Design Links</Text>
+        <Text width={200} fill={"#777"}>Use Case</Text>
+        <Text width={320} fill={"#777"}>Usage description</Text>
+        <Text width={32} fill={"#777"} tooltip="Is wrapped?" horizontalAlignText="center">{`</>`}</Text>
+        <Text width={320} fill={"#777"}>Design Links</Text>
       </AutoLayout>
-      {useCases.map((useCase) => (
-        <AutoLayout
-          direction={"horizontal"}
-          spacing={12}
-          padding={8}
-          cornerRadius={8}
-          fill={"#F5F5F5"}
-        >
-          <Input
-            value={useCase.name}
-            onTextEditEnd={(e) => updateUseCase(useCase.id, "name", e.characters)}
-            placeholder="Use Case"
-            width={200}
-          />
-          <Input
-            value={useCase.description}
-            onTextEditEnd={(e) => updateUseCase(useCase.id, "description", e.characters)}
-            placeholder="Usage description"
-            width={320}
-            inputBehavior={"multiline"}
-          />
+      {useCases.length === 0 ? (
+        <EmptyState/>
+      ) : (
+        useCases.map((useCase) => (
           <AutoLayout
-            width={32}
-            horizontalAlignItems={"center"}
+            direction={"horizontal"}
+            spacing={12}
+            padding={8}
+            cornerRadius={8}
+            fill={"#F5F5F5"}
           >
-            <Checkbox
-              onChange={() => toggleIsWrapped(useCase.id)}
-              checked={useCase.isWrapped}
-              // label="isWrapped"
+            <Input
+              value={useCase.name}
+              onTextEditEnd={(e) => updateUseCase(useCase.id, "name", e.characters)}
+              placeholder="Use Case"
+              width={200}
             />
-          </AutoLayout>
-          <AutoLayout
-            direction="vertical"
-            spacing={8}
-            width={320}
-          >
-            {useCase.links.map((link) => (
-              <AutoLayout
-                key={link.id}
-                direction="vertical"
-                spacing={8}
-                width={"fill-parent"}
-              >
-                {editingUseCaseLinkId === link.id ? (
-                  <>
-                    <AutoLayout
-                      direction="horizontal"
-                      verticalAlignItems="center"
-                      spacing={0}
-                      width={"fill-parent"}
-                    >
-                      <Input
-                        value={link.text} 
-                        placeholder="Link text"
-                        onTextEditEnd={(e) => updateUseCaseLink(useCase.id, link.id, "text", e.characters)}
+            <Input
+              value={useCase.description}
+              onTextEditEnd={(e) => updateUseCase(useCase.id, "description", e.characters)}
+              placeholder="Usage description"
+              width={320}
+              inputBehavior={"multiline"}
+            />
+            <AutoLayout
+              width={32}
+              horizontalAlignItems={"center"}
+            >
+              <Checkbox
+                onChange={() => toggleIsWrapped(useCase.id)}
+                checked={useCase.isWrapped}
+                // label="isWrapped"
+              />
+            </AutoLayout>
+            <AutoLayout
+              direction="vertical"
+              spacing={8}
+              width={320}
+            >
+              {useCase.links.map((link) => (
+                <AutoLayout
+                  key={link.id}
+                  direction="vertical"
+                  spacing={8}
+                  width={"fill-parent"}
+                >
+                  {editingUseCaseLinkId === link.id ? (
+                    <>
+                      <AutoLayout
+                        direction="horizontal"
+                        verticalAlignItems="center"
+                        spacing={0}
                         width={"fill-parent"}
-                      />
-                      <Input
-                        value={link.URL} 
-                        placeholder="URL"
-                        onTextEditEnd={(e) => updateUseCaseLink(useCase.id, link.id, "URL", e.characters)}
+                      >
+                        <Input
+                          value={link.text} 
+                          placeholder="Link text"
+                          onTextEditEnd={(e) => updateUseCaseLink(useCase.id, link.id, "text", e.characters)}
+                          width={"fill-parent"}
+                        />
+                        <Input
+                          value={link.URL} 
+                          placeholder="URL"
+                          onTextEditEnd={(e) => updateUseCaseLink(useCase.id, link.id, "URL", e.characters)}
+                          width={"fill-parent"}
+                        />
+                        <IconButton onClick={() => saveUseCaseLink(useCase.id, link.id)}>✓</IconButton>
+                        <IconButton onClick={() => removeUseCaseLink(useCase.id, link.id)}>×</IconButton>
+                      </AutoLayout>
+                    </>
+                  ) : (
+                    <>
+                      <AutoLayout
+                        direction="horizontal"
+                        verticalAlignItems="center"
+                        spacing={0}
                         width={"fill-parent"}
-                      />
-                      <IconButton onClick={() => saveUseCaseLink(useCase.id, link.id)}>✓</IconButton>
-                      <IconButton onClick={() => removeUseCaseLink(useCase.id, link.id)}>×</IconButton>
-                    </AutoLayout>
-                  </>
-                ) : (
-                  <>
-                    <AutoLayout
-                      direction="horizontal"
-                      verticalAlignItems="center"
-                      spacing={0}
-                      width={"fill-parent"}
-                    >
-                      <LinkButton onClick={() => openLink(link.URL)}>{link.text}</LinkButton>
-                      <IconButton onClick={() => removeUseCaseLink(useCase.id, link.id)}>×</IconButton>
-                    </AutoLayout>
-                  </>
-                )}
-              </AutoLayout>
-              ))}
-            <IconButton onClick={() => addUseCaseLink(useCase.id)}>+ Add link</IconButton>
+                      >
+                        <LinkButton onClick={() => openLink(link.URL)}>{link.text}</LinkButton>
+                        <IconButton onClick={() => removeUseCaseLink(useCase.id, link.id)}>×</IconButton>
+                      </AutoLayout>
+                    </>
+                  )}
+                </AutoLayout>
+                ))}
+              <IconButton onClick={() => addUseCaseLink(useCase.id)}>+ Add link</IconButton>
+            </AutoLayout>
+            <IconButton onClick={() => removeUseCase(useCase.id)}>🗑️</IconButton>
           </AutoLayout>
-          <IconButton onClick={() => removeUseCase(useCase.id)}>🗑️</IconButton>
-        </AutoLayout>
-      ))}
-      <IconButton onClick={() => addUseCase()}>+ Add use case</IconButton>
+        ))
+      )}
+      {useCases.length !== 0 &&
+        <IconButton onClick={() => addUseCase()}>+ Add use case</IconButton>
+      }
+      {/* <IconButton onClick={() => addUseCase()}>+ Add use case</IconButton> */}
     </AutoLayout>
   )
 }
