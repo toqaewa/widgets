@@ -2,7 +2,8 @@ const { widget } = figma
 const { useEffect, usePropertyMenu, useSyncedState, Input, AutoLayout, Text, SVG } = widget
 
 const STATUSES = [
-  { name: "IN DESIGN", textColor: "#49627D", fillColor: "#91C4FA" },
+  { name: "IN DESIGN", textColor: "#5C497D", fillColor: "#A891FA" },
+  { name: "IN DEVELOPMENT", textColor: "#49627D", fillColor: "#91C4FA" },
   { name: "IN PRODUCTION", textColor: "#496F56", fillColor: "#91DEAB" },
   { name: "DEPRECATED", textColor: "#7D4949", fillColor: "#FA9191" },
   { name: "ARCHIVED", textColor: "#606060", fillColor: "#BFBFBF" },
