@@ -149,10 +149,10 @@ function Checklist() {
       total,
       icon,
     }: {
-      onClick: () => void;
+      onClick?: () => void;
       completed: number;
       total: number;
-      icon: SVG;
+      icon?: SVG;
     }
   ) => (
     <AutoLayout
@@ -247,12 +247,23 @@ function Checklist() {
         icon: isDarkTheme ? DARK_THEME_ICON : LIGHT_THEME_ICON,
         isToggled: isDarkTheme,
       },
+      {
+        itemType: "separator",
+      },
+      {
+        itemType: "toggle",
+        propertyName: "toggleCompleted",
+        tooltip: showCompleted ? "Hide completed" : "Show completed",
+        // icon: showCompleted ? EyeOffIcon : EyeOnIcon,
+        isToggled: !showCompleted,
+      },
     ],
     ({ propertyName }) => {
       if (propertyName === "add") addItem();
       if (propertyName === "toggleDescription") setShowDescription(!showDescription);
       if (propertyName === "toggleProgressBar") setShowProgressBar(!showProgressBar);
       if (propertyName === "theme") handleThemeChange(!isDarkTheme);
+      if (propertyName === "toggleCompleted") setShowCompleted(!showCompleted);
     }
   );
 
@@ -267,10 +278,10 @@ function Checklist() {
     >
       {showProgressBar && (
         <ProgressBar
-          onClick={() => setShowCompleted(!showCompleted)}
+          // onClick={() => setShowCompleted(!showCompleted)}
           completed={completedCount}
           total={totalCount}
-          icon={EyeIcon}
+          // icon={EyeIcon}
         />
       )}
       <Input
