@@ -211,15 +211,15 @@ function Checklist() {
 
   usePropertyMenu(
     [
-      { 
-        itemType: "action", 
-        propertyName: "add", 
-        tooltip: "Add element", 
-        icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 5V19M5 12H19" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        `, 
-      },
+      // { 
+      //   itemType: "action", 
+      //   propertyName: "add", 
+      //   tooltip: "Add element", 
+      //   icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      //   <path d="M12 5V19M5 12H19" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      //   </svg>
+      //   `, 
+      // },
       {
         itemType: "toggle",
         propertyName: "toggleDescription",
@@ -259,7 +259,7 @@ function Checklist() {
       },
     ],
     ({ propertyName }) => {
-      if (propertyName === "add") addItem();
+      // if (propertyName === "add") addItem();
       if (propertyName === "toggleDescription") setShowDescription(!showDescription);
       if (propertyName === "toggleProgressBar") setShowProgressBar(!showProgressBar);
       if (propertyName === "theme") handleThemeChange(!isDarkTheme);
@@ -352,6 +352,21 @@ function Checklist() {
             <IconButton onClick={() => removeItem(item.id)}>🗑️</IconButton>
         </AutoLayout>
       ))}
+      <AutoLayout
+        onClick={() => addItem()}
+        width={"fill-parent"}
+        hoverStyle={{fill: buttonHoverColor}}
+        horizontalAlignItems={"center"}
+        verticalAlignItems={"center"}
+        padding={8}
+        cornerRadius={8}
+      >
+        <Text
+          fontSize={14}
+          fill={secondaryTextColor}
+          hoverStyle={{fill: buttonTextHoverColor}}
+        >+ Add item</Text>
+      </AutoLayout>
     </AutoLayout>
   );
 }
