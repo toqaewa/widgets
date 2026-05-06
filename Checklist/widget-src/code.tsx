@@ -15,8 +15,44 @@ interface Checklist {
 }
 
 const THEMES = [
-  {name: "LIGHT", bgColor:"#FCFCFC", primaryTextColor: "#333333", secondaryTextColor: "#777777", progressBarContentColor: "#333333", progressBarColor: "#999999", progressBarBackgroundColor: "#E0E0E0", buttonHoverColor: "#3399FF33", buttonTextHoverColor: "#333333"},
-  {name: "DARK", bgColor:"#292929", primaryTextColor: "#EEEEEE", secondaryTextColor: "#777777", progressBarContentColor: "#EEEEEE", progressBarColor: "#393939", progressBarBackgroundColor: "#444444", buttonHoverColor: "#3399FF33", buttonTextHoverColor: "#DDDDDD"}
+  {
+    name: "LIGHT", 
+    bgColor:"#FCFCFC",
+    bgColorSuccess:"#F3FBF5",
+    primaryTextColor: "#333333",
+    primaryTextColorSuccess: "#1E6B3A",
+    secondaryTextColor: "#777777",
+    secondaryTextColorSuccess: "#4D8A62",
+    progressBarContentColor: "#333333",
+    progressBarContentColorSuccess: "#1E6B3A",
+    progressBarColor: "#999999",
+    progressBarColorSuccess: "#7CCB95",
+    progressBarBackgroundColor: "#E0E0E0",
+    progressBarBackgroundColorSuccess: "#DFF3E5",
+    buttonHoverColor: "#3399FF33",
+    buttonHoverColorSuccess: "#2AAE6640",
+    buttonTextHoverColor: "#333333",
+    buttonTextHoverColorSuccess: "#1E6B3A",
+  },
+  {
+    name: "DARK",
+    bgColor:"#292929",
+    bgColorSuccess:"#1E2C23",
+    primaryTextColor: "#EEEEEE",
+    primaryTextColorSuccess: "#C7F0D4",
+    secondaryTextColor: "#777777",
+    secondaryTextColorSuccess: "#7FB494",
+    progressBarContentColor: "#EEEEEE",
+    progressBarContentColorSuccess: "#C7F0D4",
+    progressBarColor: "#393939",
+    progressBarColorSuccess: "#2F8F57",
+    progressBarBackgroundColor: "#444444",
+    progressBarBackgroundColorSuccess: "#2C4335",
+    buttonHoverColor: "#3399FF33",
+    buttonHoverColorSuccess: "#2AAE6640",
+    buttonTextHoverColor: "#DDDDDD",
+    buttonTextHoverColorSuccess: "#C7F0D4",
+  },
 ]
 
 const LIGHT_THEME_ICON = `
@@ -49,6 +85,7 @@ function Checklist() {
   const [showProgressBar, setShowProgressBar] = useSyncedState("showProgressBar", false)
 
   const [showCompleted, setShowCompleted] = useSyncedState("showCompleted", true)
+  const [highlightSuccess, setHighlightSuccess] = useSyncedState("highlightSuccess", false)
 
   const [theme, setTheme] = useSyncedState("theme", THEMES[0].name);
   const [isDarkTheme, setIsDarkTheme] = useSyncedState("isDarkTheme", false);
@@ -64,6 +101,18 @@ function Checklist() {
 
   const completedCount = checklistData.items.filter(item => item.completed).length;
   const totalCount = checklistData.items.length;
+  const allItemsCompleted = totalCount > 0 && completedCount === totalCount;
+  const selectedTheme = THEMES.find(item => item.name === theme) ?? THEMES[0];
+  const useGlobalSuccessColors = highlightSuccess && allItemsCompleted;
+
+  const widgetBgColor = useGlobalSuccessColors ? selectedTheme.bgColorSuccess : bgColor;
+  const widgetPrimaryTextColor = useGlobalSuccessColors ? selectedTheme.primaryTextColorSuccess : primaryTextColor;
+  const widgetSecondaryTextColor = useGlobalSuccessColors ? selectedTheme.secondaryTextColorSuccess : secondaryTextColor;
+  const widgetProgressBarContentColor = useGlobalSuccessColors ? selectedTheme.progressBarContentColorSuccess : progressBarContentColor;
+  const widgetProgressBarColor = useGlobalSuccessColors ? selectedTheme.progressBarColorSuccess : progressBarColor;
+  const widgetProgressBarBackgroundColor = useGlobalSuccessColors ? selectedTheme.progressBarBackgroundColorSuccess : progressBarBackgroundColor;
+  const widgetButtonHoverColor = useGlobalSuccessColors ? selectedTheme.buttonHoverColorSuccess : buttonHoverColor;
+  const widgetButtonTextHoverColor = useGlobalSuccessColors ? selectedTheme.buttonTextHoverColorSuccess : buttonTextHoverColor;
 
   const addItem = () => {
     setCheckList(prev => {
@@ -132,11 +181,11 @@ function Checklist() {
       padding={4}
       cornerRadius={4}
       fill={[ ]}
-      hoverStyle={{ fill: buttonHoverColor}}
+      hoverStyle={{ fill: widgetButtonHoverColor}}
       onClick={onClick}
       tooltip={tooltip}
     >
-      <Text fontSize={12} hoverStyle={{ fill: buttonTextHoverColor}}>
+      <Text fontSize={12} hoverStyle={{ fill: widgetButtonTextHoverColor}}>
         {children}
       </Text>
     </AutoLayout>
@@ -160,7 +209,7 @@ function Checklist() {
       width={200}
       height={16}
       cornerRadius={99}
-      fill={progressBarBackgroundColor}
+      fill={widgetProgressBarBackgroundColor}
       onClick={onClick}
       hoverStyle={{opacity: 0.8}}
     >
@@ -168,7 +217,7 @@ function Checklist() {
         <AutoLayout
           width={total > 0 ? (completed / total) * 200 : 0}
           height={"fill-parent"}
-          fill={progressBarColor}
+          fill={widgetProgressBarColor}
         />
       )}
       <AutoLayout
@@ -181,9 +230,9 @@ function Checklist() {
       >
         {icon}
         {completed === total && completed > 0 ? (
-          <Text fontSize={8} fontWeight={"bold"} fill={progressBarContentColor}>☑️ {completed} of {total} complete</Text>
+          <Text fontSize={8} fontWeight={"bold"} fill={widgetProgressBarContentColor}>☑️ {completed} of {total} complete</Text>
         ) : (
-          <Text fontSize={8} fontWeight={"bold"} fill={progressBarContentColor}>{completed} of {total} complete</Text>
+          <Text fontSize={8} fontWeight={"bold"} fill={widgetProgressBarContentColor}>{completed} of {total} complete</Text>
         )}
       </AutoLayout>
     </AutoLayout>
@@ -191,13 +240,13 @@ function Checklist() {
 
   const EyeOnIcon = `
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path fill-rule="evenodd" clip-rule="evenodd" d="M12 19C18 19 22 13 22 12C22 11 18 5 12 5C6 5 2 11 2 12C2 13 6 19 12 19ZM17 12C17 14.7614 14.7614 17 12 17C9.23858 17 7 14.7614 7 12C7 9.23858 9.23858 7 12 7C14.7614 7 17 9.23858 17 12ZM15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z" fill="${progressBarContentColor}"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M12 19C18 19 22 13 22 12C22 11 18 5 12 5C6 5 2 11 2 12C2 13 6 19 12 19ZM17 12C17 14.7614 14.7614 17 12 17C9.23858 17 7 14.7614 7 12C7 9.23858 9.23858 7 12 7C14.7614 7 17 9.23858 17 12ZM15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z" fill="${widgetProgressBarContentColor}"/>
     </svg>
   `;
 
   const EyeOffIcon = `
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path fill-rule="evenodd" clip-rule="evenodd" d="M3.5 5.5L4.5 4.5L6.64992 6.64992L8.46447 8.46447L9.87868 9.87868L14.1213 14.1213L15.5355 15.5355L17.3501 17.3501L18.5 18.5L17.5 19.5L16.0619 18.0619C14.8511 18.6315 13.487 19 12 19C6 19 2 13 2 12C2 11.4335 3.28348 9.26274 5.48693 7.48693L3.5 5.5ZM7.60814 9.60814C7.22038 10.3186 7 11.1336 7 12C7 14.7614 9.23858 17 12 17C12.8664 17 13.6814 16.7796 14.3919 16.3919L12.8715 14.8715C12.5957 14.9551 12.3031 15 12 15C10.3431 15 9 13.6569 9 12C9 11.6969 9.04495 11.4043 9.12854 11.1285L7.60814 9.60814ZM7.93809 5.93809L9.60814 7.60814C10.3186 7.22038 11.1336 7 12 7C14.7614 7 17 9.23858 17 12C17 12.8664 16.7796 13.6814 16.3919 14.3919L18.5131 16.5131C20.7165 14.7373 22 12.5665 22 12C22 11 18 5 12 5C10.513 5 9.14893 5.36851 7.93809 5.93809ZM11.1285 9.12854L14.8715 12.8715C14.9551 12.5957 15 12.3031 15 12C15 10.3431 13.6569 9 12 9C11.6969 9 11.4043 9.04495 11.1285 9.12854Z" fill="${progressBarContentColor}"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M3.5 5.5L4.5 4.5L6.64992 6.64992L8.46447 8.46447L9.87868 9.87868L14.1213 14.1213L15.5355 15.5355L17.3501 17.3501L18.5 18.5L17.5 19.5L16.0619 18.0619C14.8511 18.6315 13.487 19 12 19C6 19 2 13 2 12C2 11.4335 3.28348 9.26274 5.48693 7.48693L3.5 5.5ZM7.60814 9.60814C7.22038 10.3186 7 11.1336 7 12C7 14.7614 9.23858 17 12 17C12.8664 17 13.6814 16.7796 14.3919 16.3919L12.8715 14.8715C12.5957 14.9551 12.3031 15 12 15C10.3431 15 9 13.6569 9 12C9 11.6969 9.04495 11.4043 9.12854 11.1285L7.60814 9.60814ZM7.93809 5.93809L9.60814 7.60814C10.3186 7.22038 11.1336 7 12 7C14.7614 7 17 9.23858 17 12C17 12.8664 16.7796 13.6814 16.3919 14.3919L18.5131 16.5131C20.7165 14.7373 22 12.5665 22 12C22 11 18 5 12 5C10.513 5 9.14893 5.36851 7.93809 5.93809ZM11.1285 9.12854L14.8715 12.8715C14.9551 12.5957 15 12.3031 15 12C15 10.3431 13.6569 9 12 9C11.6969 9 11.4043 9.04495 11.1285 9.12854Z" fill="${widgetProgressBarContentColor}"/>
     </svg>
   `;
 
@@ -248,6 +297,12 @@ function Checklist() {
         isToggled: isDarkTheme,
       },
       {
+        itemType: "toggle",
+        propertyName: "toggleHighlightSuccess",
+        tooltip: "Highlight Success",
+        isToggled: highlightSuccess,
+      },
+      {
         itemType: "separator",
       },
       {
@@ -263,6 +318,7 @@ function Checklist() {
       if (propertyName === "toggleDescription") setShowDescription(!showDescription);
       if (propertyName === "toggleProgressBar") setShowProgressBar(!showProgressBar);
       if (propertyName === "theme") handleThemeChange(!isDarkTheme);
+      if (propertyName === "toggleHighlightSuccess") setHighlightSuccess(!highlightSuccess);
       if (propertyName === "toggleCompleted") setShowCompleted(!showCompleted);
     }
   );
@@ -274,7 +330,7 @@ function Checklist() {
       spacing={8} 
       padding={16}
       cornerRadius={20}
-      fill={bgColor}
+      fill={widgetBgColor}
     >
       {showProgressBar && (
         <ProgressBar
@@ -291,7 +347,7 @@ function Checklist() {
         fontSize={18} 
         fontWeight="bold"
         onTextEditEnd={(e) => setTitle(e.characters)}
-        fill={primaryTextColor}
+        fill={widgetPrimaryTextColor}
         hoverStyle={{opacity: 0.7}}
       />
       {showDescription && (
@@ -301,13 +357,22 @@ function Checklist() {
           onTextEditEnd={(e) => setDescription(e.characters)}
           inputBehavior="multiline"
           width="fill-parent"
-          fill={secondaryTextColor}
+          fill={widgetSecondaryTextColor}
           fontSize={12}
           hoverStyle={{opacity: 0.7}}
         />
       )}
-      {checklistData?.items.map(item => (
-        (showCompleted || !item.completed) &&
+      {checklistData?.items.map(item => {
+        if (!showCompleted && item.completed) {
+          return null;
+        }
+
+        const useItemSuccessColors = highlightSuccess && item.completed;
+        const itemBgColor = useItemSuccessColors ? selectedTheme.bgColorSuccess : widgetBgColor;
+        const itemPrimaryTextColor = useItemSuccessColors ? selectedTheme.primaryTextColorSuccess : widgetPrimaryTextColor;
+        const itemSecondaryTextColor = useItemSuccessColors ? selectedTheme.secondaryTextColorSuccess : widgetSecondaryTextColor;
+
+        return (
           <AutoLayout 
             key={item.id} 
             direction="horizontal" 
@@ -324,15 +389,15 @@ function Checklist() {
                 width={16}
                 height={16}
                 cornerRadius={4}
-                stroke={secondaryTextColor}
-                fill={bgColor}
+                stroke={itemSecondaryTextColor}
+                fill={itemBgColor}
                 onClick={() => toggleComplete(item.id)}
                 horizontalAlignItems="center"
                 verticalAlignItems="center"
                 hoverStyle={{opacity: 0.7}}
               >
                 {item.completed && (
-                  <Text fill={secondaryTextColor} fontSize={10} fontWeight="bold">
+                  <Text fill={itemSecondaryTextColor} fontSize={10} fontWeight="bold">
                     ✓
                   </Text>
                 )}
@@ -343,19 +408,20 @@ function Checklist() {
               placeholder="Checklist element"
               onTextEditEnd={(e) => updateItem(item.id, e.characters)}
               textDecoration={item.completed ? "strikethrough" : "none"}
-              fill={item.completed ? secondaryTextColor : primaryTextColor} 
+              fill={item.completed ? itemSecondaryTextColor : itemPrimaryTextColor} 
               width="fill-parent"
               fontSize={14}
               lineHeight={20}
               hoverStyle={{opacity: 0.7}}
             />
             <IconButton onClick={() => removeItem(item.id)}>🗑️</IconButton>
-        </AutoLayout>
-      ))}
+          </AutoLayout>
+        );
+      })}
       <AutoLayout
         onClick={() => addItem()}
         width={"fill-parent"}
-        hoverStyle={{fill: buttonHoverColor}}
+        hoverStyle={{fill: widgetButtonHoverColor}}
         horizontalAlignItems={"center"}
         verticalAlignItems={"center"}
         padding={8}
@@ -363,8 +429,8 @@ function Checklist() {
       >
         <Text
           fontSize={14}
-          fill={secondaryTextColor}
-          hoverStyle={{fill: buttonTextHoverColor}}
+          fill={widgetSecondaryTextColor}
+          hoverStyle={{fill: widgetButtonTextHoverColor}}
         >+ Add item</Text>
       </AutoLayout>
     </AutoLayout>
